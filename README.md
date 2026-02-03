@@ -96,8 +96,19 @@ This adaptive approach reduces resource usage by 80%+ compared to fixed-interval
 
 ## 🚀 Quick Start
 
+### ⚠️ Platform Support
+
+> **Current Status:** Major Tom Journal is currently **macOS-only** and has been tested primarily on macOS with Apple Silicon (M-series chips).
+>
+> - ✅ **macOS**: Fully supported and tested
+> - 🔄 **Windows**: Planned for future compatibility
+> - 🔄 **Linux**: Planned for future compatibility
+>
+> The system relies on macOS-specific APIs for window detection and screen capture. Cross-platform support is on the roadmap.
+
 ### Prerequisites
 
+- **macOS** (Apple Silicon or Intel)
 - Python 3.8+
 - [Ollama](https://ollama.com/) running locally with required models:
   ```bash
@@ -124,7 +135,7 @@ Edit `config.json` to customize:
 ### Running
 
 ```bash
-python Journal_demo_v15.py
+python Major_Tom_Journal.py
 ```
 
 The system will start monitoring and create memory files according to your config.json file.
@@ -205,14 +216,14 @@ Contributions welcome! Areas of interest:
 
 ---
 
-## License
-
-MIT License - See [LICENSE](LICENSE) for details.
-
----
-
 ## Acknowledgments
 
 Named after David Bowie's "Space Oddity," Major Tom Journal floats in the background of your digital life, observing and recording—until it's time to return to Ground Control with your complete mission log.
 
 *"Planet Earth is blue, and there's nothing I can do..."* 🚀
+
+### AI Assistance
+
+This project was developed with the assistance of:
+- **Kimi K2.5** (Moonshot AI) - README documentation and content refinement
+- **Gemini 3 Pro** (Google) - Code development and debugging
