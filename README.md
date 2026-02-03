@@ -70,9 +70,9 @@ This adaptive approach reduces resource usage by 80%+ compared to fixed-interval
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Major Tom Recorder                        │
+│                    Major Tom Recorder                       │
 ├─────────────────────────────────────────────────────────────┤
-│  Sensors Layer                                               │
+│  Sensors Layer                                              │
 │  ├── PlatformSensor: Window title, app name, screen region  │
 │  ├── IOSensor: Keyboard/mouse activity (privacy-respecting) │
 │  └── IdleSensor: Detect user absence                        │
