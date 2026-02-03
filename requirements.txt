@@ -1,0 +1,21 @@
+# Major Tom Journal - Python Dependencies
+# All packages are compatible with local-only operation for privacy
+
+# Screen capture and image processing
+pyautogui>=0.9.54
+Pillow>=10.0.0
+
+# File system monitoring
+watchdog>=3.0.0
+
+# Input monitoring (keyboard/mouse activity)
+pynput>=1.7.6
+
+# Local LLM integration
+ollama>=0.1.0
+
+# Optional: For semantic routing with embeddings
+# numpy>=1.24.0
+
+# Note: This project requires Ollama to be installed separately
+# Visit https://ollama.com for installation instructions

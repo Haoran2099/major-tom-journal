@@ -1,0 +1,165 @@
+{
+  "paths": {
+    "monitor_path": "YOUR_MONITOR_PATH_HERE",
+    "log_root": "YOUR_LOG_ROOT_HERE",
+    "memory_root": "YOUR_MEMORY_ROOT_HERE"
+  },
+  "parameters": {
+    "sample_interval": 5,
+    "idle_threshold": 180,
+    "media_idle_threshold": 300,
+    "vlm_cooldown": 60
+  },
+  "models": {
+    "brain_model": "qwen3:8b",
+    "eye_model": "qwen3-vl:8b",
+    "embedding_model": "qwen3-embedding:8b"
+  },
+  "semantic_router": {
+    "enabled": true,
+    "similarity_threshold": 0.8,
+    "routes": {
+      "SKIP": [
+        "Browsing file explorer or Finder window",
+        "System settings and control panel configuration",
+        "Login screen or password entry manager",
+        "Desktop background or empty screen",
+        "Participating in interactive sessions",
+        "Downloading files"
+      ],
+      "SNAPSHOT": [
+        "Writing code in Python, JavaScript, C++ or IDE",
+        "Reading academic papers or technical documentation",
+        "Designing UI UX in Figma or Photoshop",
+        "Writing notes in Obsidian or Notion",
+        "Debugging terminal output and server logs",
+        "Listening to music on Spotify or Apple Music"
+      ]
+    }
+  },
+  "prompts": {
+    "vlm_system": "You are a Knowledge Extractor. Ignore UI layout. Focus strictly on semantic content. Analyze text, code, or diagrams. Output ONLY 1-2 dense, factual sentences summarizing WHAT is being learned or worked on."
+  },
+  "context_routing": {
+    "enabled": true,
+    "method": "keyword",
+    "apps": {
+      "Safari": {
+        "Research": [
+          "paper",
+          "research",
+          "arxiv",
+          "scholar",
+          "academic",
+          "thesis",
+          "journal",
+          "science",
+          "study",
+          "learning",
+          "course",
+          "mooc",
+          "edu"
+        ],
+        "Work": [
+          "github",
+          "gitlab",
+          "stackoverflow",
+          "documentation",
+          "api",
+          "dev",
+          "coding",
+          "programming"
+        ],
+        "Shopping": [
+          "taobao",
+          "jd",
+          "amazon",
+          "shopping",
+          "buy",
+          "price",
+          "product"
+        ],
+        "Entertainment": [
+          "bilibili",
+          "youtube",
+          "video",
+          "movie",
+          "game",
+          "play",
+          "fun"
+        ],
+        "Social": [
+          "twitter",
+          "x.com",
+          "weibo",
+          "facebook",
+          "instagram",
+          "social"
+        ]
+      },
+      "Chrome": {
+        "Research": [
+          "paper",
+          "research",
+          "arxiv",
+          "scholar",
+          "academic",
+          "thesis",
+          "journal",
+          "science",
+          "study",
+          "learning"
+        ],
+        "Work": [
+          "github",
+          "gitlab",
+          "stackoverflow",
+          "documentation",
+          "api",
+          "dev"
+        ],
+        "Entertainment": [
+          "youtube",
+          "video",
+          "movie",
+          "game"
+        ]
+      },
+      "Zotero": {
+        "Reading": [
+          "reading",
+          "pdf",
+          "paper"
+        ],
+        "Organizing": [
+          "organize",
+          "tag",
+          "collection",
+          "library"
+        ]
+      },
+      "VS Code": {
+        "Python": [
+          "python",
+          "py",
+          "django",
+          "flask"
+        ],
+        "JavaScript": [
+          "javascript",
+          "js",
+          "react",
+          "vue",
+          "node"
+        ],
+        "Web": [
+          "html",
+          "css",
+          "web",
+          "frontend"
+        ]
+      }
+    },
+    "default_suffix": "General"
+  }
+}
