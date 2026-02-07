@@ -23,6 +23,7 @@ Major Tom Journal acts as your personal "**black box recorder**." It observes ev
 ## Core Workflow
 
 ```
+<<<<<<< HEAD
 Your screen activity
     │
     ▼
@@ -52,6 +53,29 @@ Your screen activity
                          │  Safari_Research.md      │
                          │  VS Code_Project.md      │
                          └──────────────────────────┘
+=======
+┌─────────────────────────────────────────────────────────────┐
+│                    Major Tom Recorder                       │
+├─────────────────────────────────────────────────────────────┤
+│  Sensors Layer                                              │
+│  ├── PlatformSensor: Window title, app name, screen region  │
+│  ├── IOSensor: Keyboard/mouse activity (privacy-respecting) │
+│  └── IdleSensor: Detect user absence                        │
+├─────────────────────────────────────────────────────────────┤
+│  Brain Layer (Semantic Router)                              │
+│  ├── Pattern Matching: Fast path for known activities       │
+│  ├── Semantic Classification: Local embedding-based routing │
+│  └── LLM Decision: Context-aware sampling strategy          │
+├─────────────────────────────────────────────────────────────┤
+│  Memory Layer (TaskBlockManager)                            │
+│  ├── Dynamic Routing: Title-based sub-task classification   │
+│  ├── Thread-Safe Access: Lock-protected read/write          │
+│  └── Targeted Persistence: Source-aware async writes        │
+├─────────────────────────────────────────────────────────────┤
+│  Vision Layer (VLM Harvester)                               │
+│  └── Local vision model (qwen3-vl) for screenshot analysis  │
+└─────────────────────────────────────────────────────────────┘
+>>>>>>> ab3274d992d8714ebafbf4d07e549cdec11f4254
 ```
 
 ### Three Technical Highlights
