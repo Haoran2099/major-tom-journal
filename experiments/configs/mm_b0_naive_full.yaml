@@ -1,0 +1,39 @@
+# ACM MM Baseline B0: Naive Full Processing
+# Process every event with full LLM + VLM
+# Serves as upper bound for quality and cost
+
+experiment:
+  name: "mm_b0_naive_full"
+  dimension: "acmmm_baseline"
+  description: "Naive baseline: process every event with full LLM+VLM"
+  repeat: 3
+  seed: 42
+
+method:
+  type: "naive_full"
+
+models:
+  brain: "qwen3:8b"
+  eye: "qwen3-vl:8b"
+  embedding: "qwen3-embedding:8b"
+
+# No filtering - process everything
+components:
+  semantic_gating:
+    enabled: false
+  decision_cache:
+    enabled: false
+  vlm:
+    enabled: true
+    cooldown: 0
+  adaptive_sampling:
+    enabled: false
+
+llm_options:
+  temperature: 0.1
+  num_ctx: 4096
+  num_predict: 200
+
+metrics:
+  collect_all: true
+  export_format: "both"

@@ -1,0 +1,14 @@
+{
+  "timestamp": "20260206_143643",
+  "dataset_path": "experiments/results/acmmm/20260206_143643/dataset",
+  "output_dir": "experiments/results/acmmm/20260206_143643",
+  "methods": [
+    "rule_based",
+    "embedding_only",
+    "hsr"
+  ],
+  "num_sessions": 10,
+  "events_per_session": 20,
+  "seed": 42,
+  "use_llm": false
+}

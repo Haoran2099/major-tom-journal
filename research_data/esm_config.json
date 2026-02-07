@@ -1,0 +1,99 @@
+{
+  "enabled": true,
+  "interval_hours": 4,
+  "questions": [
+    {
+      "id": "current_activity",
+      "type": "text",
+      "question": "What are you currently working on?",
+      "question_zh": "\u4f60\u73b0\u5728\u5728\u505a\u4ec0\u4e48\uff1f",
+      "required": true,
+      "placeholder": "Briefly describe your current activity..."
+    },
+    {
+      "id": "focus_level",
+      "type": "slider",
+      "question": "How focused are you right now?",
+      "question_zh": "\u4f60\u73b0\u5728\u7684\u4e13\u6ce8\u7a0b\u5ea6\u5982\u4f55\uff1f",
+      "required": true,
+      "min": 1,
+      "max": 5,
+      "labels": [
+        "Very distracted",
+        "Somewhat distracted",
+        "Neutral",
+        "Somewhat focused",
+        "Very focused"
+      ],
+      "labels_zh": [
+        "\u975e\u5e38\u5206\u5fc3",
+        "\u6709\u4e9b\u5206\u5fc3",
+        "\u4e00\u822c",
+        "\u6bd4\u8f83\u4e13\u6ce8",
+        "\u975e\u5e38\u4e13\u6ce8"
+      ]
+    },
+    {
+      "id": "system_accuracy",
+      "type": "radio",
+      "question": "Is the system's recent recording accurate?",
+      "question_zh": "\u7cfb\u7edf\u6700\u8fd1\u7684\u8bb0\u5f55\u51c6\u786e\u5417\uff1f",
+      "required": true,
+      "options": [
+        {
+          "value": "accurate",
+          "label": "Accurate",
+          "label_zh": "\u51c6\u786e"
+        },
+        {
+          "value": "partial",
+          "label": "Partially accurate",
+          "label_zh": "\u90e8\u5206\u51c6\u786e"
+        },
+        {
+          "value": "inaccurate",
+          "label": "Inaccurate",
+          "label_zh": "\u4e0d\u51c6\u786e"
+        },
+        {
+          "value": "not_noticed",
+          "label": "Didn't notice",
+          "label_zh": "\u6ca1\u6ce8\u610f"
+        }
+      ]
+    },
+    {
+      "id": "mood",
+      "type": "radio",
+      "question": "How would you describe your current mood?",
+      "question_zh": "\u4f60\u73b0\u5728\u7684\u5fc3\u60c5\u5982\u4f55\uff1f",
+      "required": false,
+      "options": [
+        {
+          "value": "positive",
+          "label": "Positive",
+          "label_zh": "\u79ef\u6781"
+        },
+        {
+          "value": "neutral",
+          "label": "Neutral",
+          "label_zh": "\u4e00\u822c"
+        },
+        {
+          "value": "negative",
+          "label": "Negative",
+          "label_zh": "\u6d88\u6781"
+        }
+      ]
+    },
+    {
+      "id": "notes",
+      "type": "text",
+      "question": "Any additional notes? (optional)",
+      "question_zh": "\u5176\u4ed6\u5907\u6ce8\uff08\u53ef\u9009\uff09",
+      "required": false,
+      "placeholder": "E.g., why the recording was inaccurate..."
+    }
+  ],
+  "next_trigger": null
+}

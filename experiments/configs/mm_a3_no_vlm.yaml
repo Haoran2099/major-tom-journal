@@ -1,0 +1,34 @@
+# ACM MM Ablation A3: HSR without VLM
+# Tests contribution of visual modality
+
+experiment:
+  name: "mm_a3_no_vlm"
+  dimension: "acmmm_ablation"
+  description: "Ablation: HSR without VLM (text-only)"
+  repeat: 3
+  seed: 42
+
+method:
+  type: "hsr"
+  semantic_threshold: 0.30
+  cache_ttl: 300
+  history_size: 10
+
+models:
+  brain: "qwen3:8b"
+  eye: null  # ABLATED
+  embedding: "qwen3-embedding:8b"
+
+components:
+  semantic_gating:
+    enabled: true
+  decision_cache:
+    enabled: true
+  vlm:
+    enabled: false  # ABLATED
+  adaptive_sampling:
+    enabled: true
+
+metrics:
+  collect_all: true
+  export_format: "both"

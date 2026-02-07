@@ -1,0 +1,18 @@
+{
+  "num_sessions": 50,
+  "total_events": 2500,
+  "activity_types": [
+    "coding",
+    "web_research",
+    "document_writing",
+    "email_communication",
+    "video_watching",
+    "social_media",
+    "file_management",
+    "meeting",
+    "gaming",
+    "shopping",
+    "idle"
+  ],
+  "generated_at": "2026-02-06 14:39:38"
+}

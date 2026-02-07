@@ -1,0 +1,35 @@
+# ACM MM Baseline B3: Embedding-Only Filtering
+# Use embedding similarity to filter redundant events
+# No LLM generation - only embedding model
+
+experiment:
+  name: "mm_b3_embedding_only"
+  dimension: "acmmm_baseline"
+  description: "Embedding-only baseline: filter by semantic similarity"
+  repeat: 3
+  seed: 42
+
+method:
+  type: "embedding_only"
+  similarity_threshold: 0.85
+  history_size: 10
+
+models:
+  brain: null
+  eye: null
+  embedding: "qwen3-embedding:8b"
+
+components:
+  semantic_gating:
+    enabled: true
+    threshold: 0.85
+  decision_cache:
+    enabled: false
+  vlm:
+    enabled: false
+  adaptive_sampling:
+    enabled: false
+
+metrics:
+  collect_all: true
+  export_format: "both"

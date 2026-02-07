@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-02-06T14:41:39.329508",
+  "experiments": {
+    "token_efficiency": [
+      "te_c0_naive",
+      "te_c1_cache_only",
+      "te_c2_semantic_only",
+      "te_c3_sem_cache",
+      "te_c4_full_system"
+    ],
+    "memory_mechanism": [
+      "mm_m0_global",
+      "mm_m1_app_only",
+      "mm_m2_keyword",
+      "mm_m3_semantic"
+    ],
+    "journal_quality": [
+      "jq_q0_small",
+      "jq_q1_baseline",
+      "jq_q2_large",
+      "jq_q3_gemma",
+      "jq_q4_no_vlm"
+    ]
+  },
+  "total_experiments": 14
+}

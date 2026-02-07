@@ -1,0 +1,33 @@
+# ACM MM Baseline B1: Rule-Based Filtering
+# Simple rules based on application name and keywords
+# Fast but low quality - serves as lower bound
+
+experiment:
+  name: "mm_b1_rule_based"
+  dimension: "acmmm_baseline"
+  description: "Rule-based baseline: filter by app name and keywords"
+  repeat: 3
+  seed: 42
+
+method:
+  type: "rule_based"
+
+# No LLM needed for this method
+models:
+  brain: null
+  eye: null
+  embedding: null
+
+components:
+  semantic_gating:
+    enabled: false
+  decision_cache:
+    enabled: false
+  vlm:
+    enabled: false
+  adaptive_sampling:
+    enabled: false
+
+metrics:
+  collect_all: true
+  export_format: "both"

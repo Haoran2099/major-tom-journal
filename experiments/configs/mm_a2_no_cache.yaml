@@ -1,0 +1,34 @@
+# ACM MM Ablation A2: HSR without Decision Cache
+# Tests contribution of Layer 2 (Decision Cache)
+
+experiment:
+  name: "mm_a2_no_cache"
+  dimension: "acmmm_ablation"
+  description: "Ablation: HSR without decision cache layer"
+  repeat: 3
+  seed: 42
+
+method:
+  type: "hsr"
+  semantic_threshold: 0.30
+  cache_ttl: 0  # Disabled
+  history_size: 10
+
+models:
+  brain: "qwen3:8b"
+  eye: "qwen3-vl:8b"
+  embedding: "qwen3-embedding:8b"
+
+components:
+  semantic_gating:
+    enabled: true
+  decision_cache:
+    enabled: false  # ABLATED
+  vlm:
+    enabled: true
+  adaptive_sampling:
+    enabled: true
+
+metrics:
+  collect_all: true
+  export_format: "both"

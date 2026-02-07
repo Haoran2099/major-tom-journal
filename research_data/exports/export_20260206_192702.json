@@ -1,0 +1,22 @@
+{
+  "exported_at": "2026-02-06T19:27:02.715643",
+  "anonymization": {
+    "ids_anonymized": true,
+    "paths_removed": true
+  },
+  "participants": [],
+  "esm_responses": [
+    {
+      "id": "ANON_f4b05388",
+      "participant_id": "ANON_11601308",
+      "timestamp": "2026-02-06T19:27:02.713122",
+      "responses": {
+        "current_activity": "Testing the dashboard",
+        "focus_level": "4",
+        "system_accuracy": "accurate"
+      },
+      "duration_seconds": 30.5
+    }
+  ],
+  "journal_entries": []
+}

@@ -1,0 +1,2385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAJOR TOM · Mission Control</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  /* WIN98 System Colors */
+  --win-bg:#008080;
+  --win-desktop:#008080;
+  --win-titlebar:#000080;
+  --win-titlebar-inactive:#808080;
+  --win-window:#c0c0c0;
+  --win-button-face:#c0c0c0;
+  --win-button-light:#ffffff;
+  --win-button-shadow:#808080;
+  --win-button-dark:#000000;
+  --win-text:#000000;
+  --win-highlight:#000080;
+  --win-highlight-text:#ffffff;
+
+  /* Extended Palette - Cyber/Retro */
+  --cyber-purple:#6b5b95;
+  --cyber-pink:#ff6b9d;
+  --cyber-cyan:#00ffff;
+  --cyber-green:#00ff00;
+  --cyber-yellow:#ffff00;
+
+  /* Fonts */
+  --font-pixel:'Press Start 2P', monospace;
+  --font-terminal:'VT323', monospace;
+  --font-mono:'IBM Plex Mono', monospace;
+}
+
+html{font-size:16px}
+body{
+  background:var(--win-desktop);
+  color:var(--win-text);
+  font-family:var(--font-mono);
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
+}
+
+/* =====================================================
+   SHOOTING STARS BACKGROUND
+   ===================================================== */
+.stars-container{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  overflow:hidden;
+  z-index:0;
+  pointer-events:none;
+}
+
+.shooting-star{
+  position:absolute;
+  width:100px;
+  height:2px;
+  background:linear-gradient(90deg, var(--cyber-cyan), transparent);
+  border-radius:50%;
+  filter:drop-shadow(0 0 6px var(--cyber-cyan));
+  animation:shoot linear infinite;
+  opacity:0;
+}
+
+@keyframes shoot{
+  0%{
+    transform:translateX(0) translateY(0) rotate(-45deg);
+    opacity:1;
+  }
+  70%{
+    opacity:1;
+  }
+  100%{
+    transform:translateX(-1500px) translateY(1500px) rotate(-45deg);
+    opacity:0;
+  }
+}
+
+/* Generate multiple shooting stars with varied positions and delays */
+.shooting-star:nth-child(1){top:10%;left:100%;animation-duration:3s;animation-delay:0s;width:150px}
+.shooting-star:nth-child(2){top:20%;left:100%;animation-duration:2.5s;animation-delay:0.5s;width:120px;background:linear-gradient(90deg, var(--cyber-pink), transparent)}
+.shooting-star:nth-child(3){top:5%;left:80%;animation-duration:4s;animation-delay:1s;width:100px}
+.shooting-star:nth-child(4){top:35%;left:100%;animation-duration:3.5s;animation-delay:2s;width:180px;background:linear-gradient(90deg, var(--cyber-yellow), transparent)}
+.shooting-star:nth-child(5){top:15%;left:90%;animation-duration:2.8s;animation-delay:3s;width:130px;background:linear-gradient(90deg, var(--cyber-green), transparent)}
+.shooting-star:nth-child(6){top:45%;left:100%;animation-duration:3.2s;animation-delay:1.5s;width:110px}
+.shooting-star:nth-child(7){top:8%;left:70%;animation-duration:4.5s;animation-delay:2.5s;width:160px;background:linear-gradient(90deg, var(--cyber-pink), transparent)}
+.shooting-star:nth-child(8){top:25%;left:95%;animation-duration:3s;animation-delay:4s;width:140px}
+.shooting-star:nth-child(9){top:50%;left:85%;animation-duration:2.6s;animation-delay:0.8s;width:90px;background:linear-gradient(90deg, var(--cyber-yellow), transparent)}
+.shooting-star:nth-child(10){top:2%;left:100%;animation-duration:5s;animation-delay:3.5s;width:200px}
+
+/* Star field background */
+.star-field{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  z-index:0;
+  background:
+    radial-gradient(1px 1px at 20px 30px, white, transparent),
+    radial-gradient(1px 1px at 40px 70px, rgba(255,255,255,.8), transparent),
+    radial-gradient(1px 1px at 50px 160px, rgba(255,255,255,.6), transparent),
+    radial-gradient(1px 1px at 90px 40px, white, transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,.7), transparent),
+    radial-gradient(1px 1px at 160px 120px, white, transparent),
+    radial-gradient(2px 2px at 200px 50px, var(--cyber-cyan), transparent),
+    radial-gradient(1px 1px at 250px 180px, white, transparent),
+    radial-gradient(1px 1px at 300px 100px, rgba(255,255,255,.5), transparent),
+    radial-gradient(2px 2px at 350px 200px, var(--cyber-pink), transparent);
+  background-size:400px 300px;
+  animation:twinkle 4s ease-in-out infinite;
+}
+@keyframes twinkle{
+  0%,100%{opacity:.6}
+  50%{opacity:.9}
+}
+
+/* =====================================================
+   DITHER SHADER OVERLAY
+   ===================================================== */
+.dither-overlay{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  z-index:1;
+  pointer-events:none;
+  opacity:.15;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='1' height='1' fill='%23000'/%3E%3Crect x='2' y='0' width='1' height='1' fill='%23000'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%23000'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%23000'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%23000'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23000'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%23000'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%23000'/%3E%3C/svg%3E");
+  background-size:4px 4px;
+  mix-blend-mode:overlay;
+}
+
+/* Scanline effect */
+.scanlines{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  z-index:2;
+  pointer-events:none;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(0,0,0,.03) 2px,
+    rgba(0,0,0,.03) 4px
+  );
+}
+
+/* =====================================================
+   WIN98 WINDOW STYLES
+   ===================================================== */
+.win-window{
+  background:var(--win-window);
+  border:2px solid;
+  border-color:var(--win-button-light) var(--win-button-dark) var(--win-button-dark) var(--win-button-light);
+  box-shadow:
+    inset 1px 1px 0 var(--win-button-face),
+    inset -1px -1px 0 var(--win-button-shadow),
+    4px 4px 0 rgba(0,0,0,.3);
+  position:relative;
+  z-index:10;
+}
+
+.win-titlebar{
+  background:linear-gradient(90deg, var(--win-titlebar), var(--cyber-purple));
+  color:white;
+  padding:4px 8px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-family:var(--font-mono);
+  font-size:.8rem;
+  font-weight:600;
+  letter-spacing:.02em;
+  user-select:none;
+}
+.win-titlebar-text{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.win-titlebar-icon{
+  width:16px;height:16px;
+  background:var(--cyber-cyan);
+  border:1px solid var(--win-button-dark);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:10px;
+}
+.win-titlebar-buttons{
+  display:flex;
+  gap:2px;
+}
+.win-btn{
+  background:var(--win-button-face);
+  border:2px solid;
+  border-color:var(--win-button-light) var(--win-button-dark) var(--win-button-dark) var(--win-button-light);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-family:var(--font-mono);
+  font-size:.85rem;
+  cursor:pointer;
+  padding:6px 12px;
+  white-space:nowrap;
+  min-width:fit-content;
+}
+.win-btn:active{
+  border-color:var(--win-button-dark) var(--win-button-light) var(--win-button-light) var(--win-button-dark);
+}
+.win-btn:hover{
+  background:#d4d4d4;
+}
+/* Small buttons for titlebar */
+.win-titlebar-buttons .win-btn{
+  width:16px;height:14px;
+  padding:0;
+  font-size:10px;
+  min-width:16px;
+}
+
+.win-content{
+  padding:8px;
+  background:var(--win-window);
+}
+
+/* Inset panel (like text areas) */
+.win-inset{
+  background:#fff;
+  border:2px solid;
+  border-color:var(--win-button-shadow) var(--win-button-light) var(--win-button-light) var(--win-button-shadow);
+  padding:4px;
+}
+
+/* Dark screen panel */
+.win-screen{
+  background:#000;
+  border:2px solid;
+  border-color:var(--win-button-shadow) var(--win-button-light) var(--win-button-light) var(--win-button-shadow);
+  color:var(--cyber-cyan);
+  font-family:var(--font-terminal);
+  padding:8px;
+  position:relative;
+  overflow:hidden;
+}
+
+/* CRT glow effect inside screens */
+.win-screen::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;width:100%;height:100%;
+  background:radial-gradient(ellipse at center, rgba(0,255,255,.03), transparent 70%);
+  pointer-events:none;
+}
+
+/* =====================================================
+   COMET CARD EFFECT
+   ===================================================== */
+.comet-card{
+  position:relative;
+  overflow:visible;
+}
+.comet-card::before{
+  content:'';
+  position:absolute;
+  top:-2px;left:-2px;right:-2px;bottom:-2px;
+  background:linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--cyber-cyan) 25%,
+    var(--cyber-pink) 50%,
+    var(--cyber-purple) 75%,
+    transparent 100%
+  );
+  background-size:200% 100%;
+  border-radius:0;
+  z-index:-1;
+  animation:cometGlow 3s linear infinite;
+  opacity:0;
+  transition:opacity .3s;
+}
+.comet-card:hover::before{
+  opacity:1;
+}
+@keyframes cometGlow{
+  0%{background-position:200% 0}
+  100%{background-position:-200% 0}
+}
+
+/* Comet trail particles */
+.comet-card::after{
+  content:'';
+  position:absolute;
+  top:50%;right:-20px;
+  width:40px;height:4px;
+  background:linear-gradient(90deg, var(--cyber-cyan), transparent);
+  transform:translateY(-50%);
+  opacity:0;
+  transition:all .3s;
+  filter:blur(2px);
+}
+.comet-card:hover::after{
+  opacity:.8;
+  right:-40px;
+}
+
+/* =====================================================
+   LAYOUT & COMPONENTS
+   ===================================================== */
+.app-container{
+  position:relative;
+  z-index:5;
+  padding:8px;
+  min-height:100vh;
+}
+
+/* Taskbar */
+.taskbar{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  height:32px;
+  background:var(--win-button-face);
+  border-top:2px solid var(--win-button-light);
+  display:flex;
+  align-items:center;
+  padding:2px 4px;
+  z-index:100;
+  gap:4px;
+}
+.start-button{
+  background:var(--win-button-face);
+  border:2px solid;
+  border-color:var(--win-button-light) var(--win-button-dark) var(--win-button-dark) var(--win-button-light);
+  padding:4px 12px;
+  font-family:var(--font-mono);
+  font-size:.85rem;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-weight:bold;
+}
+.start-button:hover{background:#d4d4d4}
+.start-button:active{
+  border-color:var(--win-button-dark) var(--win-button-light) var(--win-button-light) var(--win-button-dark);
+}
+.start-icon{
+  width:16px;height:16px;
+  background:linear-gradient(135deg, var(--cyber-cyan) 25%, var(--cyber-green) 25%, var(--cyber-green) 50%, var(--cyber-yellow) 50%, var(--cyber-yellow) 75%, var(--cyber-pink) 75%);
+}
+.taskbar-divider{
+  width:2px;height:24px;
+  border-left:1px solid var(--win-button-shadow);
+  border-right:1px solid var(--win-button-light);
+  margin:0 2px;
+}
+.taskbar-tray{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border:2px solid;
+  border-color:var(--win-button-shadow) var(--win-button-light) var(--win-button-light) var(--win-button-shadow);
+  padding:2px 8px;
+  font-family:var(--font-terminal);
+  font-size:1rem;
+}
+.tray-led{
+  width:8px;height:8px;
+  background:var(--cyber-green);
+  border-radius:50%;
+  animation:ledBlink 1s ease-in-out infinite;
+  box-shadow:0 0 4px var(--cyber-green);
+}
+.tray-led.offline{background:var(--cyber-pink);box-shadow:0 0 4px var(--cyber-pink)}
+@keyframes ledBlink{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* Main window */
+.main-window{
+  margin-bottom:40px;
+}
+
+/* Navigation tabs (Win98 style) */
+.nav-tabs{
+  display:flex;
+  padding:0 4px;
+  gap:0;
+}
+.nav-tab{
+  background:var(--win-button-face);
+  border:2px solid;
+  border-color:var(--win-button-light) var(--win-button-dark) var(--win-button-dark) var(--win-button-light);
+  border-bottom:none;
+  padding:8px 16px;
+  font-family:var(--font-mono);
+  font-size:.75rem;
+  font-weight:600;
+  cursor:pointer;
+  position:relative;
+  top:2px;
+  margin-right:-1px;
+  white-space:nowrap;
+}
+.nav-tab:hover{background:#d4d4d4}
+.nav-tab.active{
+  background:var(--win-window);
+  border-bottom:2px solid var(--win-window);
+  z-index:1;
+}
+
+/* Grid system */
+.grid{display:grid;gap:8px}
+.grid-4{grid-template-columns:repeat(4,1fr)}
+.grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-2{grid-template-columns:repeat(2,1fr)}
+.grid-1-2{grid-template-columns:1fr 2fr}
+@media(max-width:1200px){.grid-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:800px){.grid-4,.grid-3,.grid-2,.grid-1-2{grid-template-columns:1fr}}
+
+/* Data readouts */
+.readout{
+  font-family:var(--font-terminal);
+  line-height:1.2;
+}
+.readout-lg{font-size:2.8rem}
+.readout-md{font-size:2rem}
+.readout-sm{font-size:1.4rem}
+.readout-sub{
+  font-family:var(--font-mono);
+  font-size:.75rem;
+  color:var(--cyber-purple);
+  margin-top:4px;
+}
+
+/* Cyber text colors */
+.cyber-cyan{color:var(--cyber-cyan);text-shadow:0 0 10px var(--cyber-cyan)}
+.cyber-pink{color:var(--cyber-pink);text-shadow:0 0 10px var(--cyber-pink)}
+.cyber-green{color:var(--cyber-green);text-shadow:0 0 10px var(--cyber-green)}
+.cyber-yellow{color:var(--cyber-yellow);text-shadow:0 0 10px var(--cyber-yellow)}
+
+/* Progress bars (Win98 style) */
+.win-progress{
+  height:16px;
+  background:#fff;
+  border:2px solid;
+  border-color:var(--win-button-shadow) var(--win-button-light) var(--win-button-light) var(--win-button-shadow);
+  padding:2px;
+}
+.win-progress-bar{
+  height:100%;
+  background:repeating-linear-gradient(
+    90deg,
+    var(--win-titlebar) 0px,
+    var(--win-titlebar) 8px,
+    var(--cyber-purple) 8px,
+    var(--cyber-purple) 10px
+  );
+  transition:width .5s;
+}
+
+/* Status label */
+.status-label{
+  font-family:var(--font-mono);
+  font-size:.75rem;
+  font-weight:600;
+  color:var(--win-text);
+  margin-bottom:4px;
+  letter-spacing:.02em;
+}
+
+/* Timeline */
+.timeline{max-height:280px;overflow-y:auto}
+.timeline-item{
+  display:flex;
+  gap:8px;
+  padding:6px 0;
+  border-bottom:1px dotted var(--cyber-cyan);
+  font-family:var(--font-terminal);
+  font-size:1.1rem;
+}
+.timeline-time{color:var(--cyber-green);min-width:70px}
+.timeline-badge{
+  padding:3px 8px;
+  font-family:var(--font-mono);
+  font-size:.7rem;
+  font-weight:600;
+  border:1px solid;
+  background:#000;
+}
+.badge-snapshot{border-color:var(--cyber-cyan);color:var(--cyber-cyan)}
+.badge-skip{border-color:var(--cyber-yellow);color:var(--cyber-yellow)}
+.badge-switch{border-color:var(--cyber-pink);color:var(--cyber-pink)}
+.badge-idle{border-color:var(--cyber-purple);color:var(--cyber-purple)}
+.timeline-text{color:var(--cyber-cyan);flex:1;opacity:.8}
+
+/* Journal & Memory */
+.sidebar-list{max-height:50vh;overflow-y:auto}
+.list-item{
+  padding:6px 8px;
+  font-family:var(--font-terminal);
+  font-size:1.1rem;
+  cursor:pointer;
+  border-bottom:1px dotted rgba(0,255,255,.2);
+  display:flex;
+  justify-content:space-between;
+  transition:all .15s;
+}
+.list-item:hover{background:rgba(0,255,255,.1);color:var(--cyber-cyan)}
+.list-item.active{background:var(--win-titlebar);color:white}
+.list-count{
+  font-size:.9rem;
+  opacity:.6;
+  border:1px solid currentColor;
+  padding:0 6px;
+}
+
+.content-area{
+  height:60vh;
+  max-height:500px;
+  overflow-y:auto;
+  font-family:var(--font-terminal);
+  font-size:1.15rem;
+  line-height:1.6;
+  white-space:pre-wrap;
+  word-wrap:break-word;
+}
+.content-area h1,.content-area h2,.content-area h3{
+  font-family:var(--font-mono);
+  color:var(--cyber-pink);
+  margin:12px 0 6px;
+  font-size:1rem;
+  font-weight:700;
+  letter-spacing:.02em;
+}
+.content-area code{
+  background:var(--win-titlebar);
+  padding:2px 6px;
+  color:var(--cyber-cyan);
+}
+.content-area blockquote{
+  border-left:3px solid var(--cyber-purple);
+  padding-left:12px;
+  opacity:.8;
+}
+
+/* Search */
+.search-box{display:flex;gap:4px;margin-bottom:8px}
+.search-input{
+  flex:1;
+  background:#000;
+  border:2px solid;
+  border-color:var(--win-button-shadow) var(--win-button-light) var(--win-button-light) var(--win-button-shadow);
+  padding:6px 10px;
+  font-family:var(--font-terminal);
+  font-size:1.1rem;
+  color:var(--cyber-cyan);
+  outline:none;
+}
+.search-input:focus{box-shadow:inset 0 0 10px rgba(0,255,255,.2)}
+.search-input::placeholder{color:rgba(0,255,255,.3)}
+.search-btn{
+  background:var(--win-button-face);
+  border:2px solid;
+  border-color:var(--win-button-light) var(--win-button-dark) var(--win-button-dark) var(--win-button-light);
+  padding:8px 20px;
+  font-family:var(--font-mono);
+  font-size:.85rem;
+  font-weight:600;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.search-btn:hover{background:#d4d4d4}
+.search-btn:active{
+  border-color:var(--win-button-dark) var(--win-button-light) var(--win-button-light) var(--win-button-dark);
+}
+
+/* Tables */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{
+  font-family:var(--font-pixel);
+  font-size:.45rem;
+  text-align:left;
+  padding:6px;
+  background:var(--win-titlebar);
+  color:white;
+  border:1px solid var(--win-button-dark);
+}
+.data-table td{
+  font-family:var(--font-terminal);
+  font-size:1rem;
+  padding:6px;
+  border:1px solid var(--win-button-shadow);
+  background:#fff;
+}
+.data-table tr:hover td{background:rgba(0,255,255,.1)}
+.dim-badge{
+  display:inline-block;
+  font-family:var(--font-mono);
+  font-size:.7rem;
+  font-weight:600;
+  padding:3px 8px;
+  border:1px solid;
+}
+
+/* Charts */
+.chart-wrap{position:relative;height:220px;padding:4px}
+.chart-wrap canvas{width:100%!important;height:100%!important}
+
+/* Empty states */
+.empty{
+  text-align:center;
+  padding:40px 16px;
+  font-family:var(--font-terminal);
+  font-size:1.2rem;
+  color:var(--cyber-cyan);
+  opacity:.5;
+}
+.empty .icon{font-size:2rem;margin-bottom:8px;display:block}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:16px;height:16px}
+::-webkit-scrollbar-track{
+  background:var(--win-button-face);
+  border:1px solid var(--win-button-shadow);
+}
+::-webkit-scrollbar-thumb{
+  background:var(--win-button-face);
+  border:2px solid;
+  border-color:var(--win-button-light) var(--win-button-dark) var(--win-button-dark) var(--win-button-light);
+}
+::-webkit-scrollbar-thumb:hover{background:#d4d4d4}
+::-webkit-scrollbar-button{
+  width:16px;height:16px;
+  background:var(--win-button-face);
+  border:2px solid;
+  border-color:var(--win-button-light) var(--win-button-dark) var(--win-button-dark) var(--win-button-light);
+}
+
+/* Tab panels */
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* Section divider */
+.section-header{
+  font-family:var(--font-mono);
+  font-size:.85rem;
+  font-weight:600;
+  color:var(--win-text);
+  padding:4px 0;
+  margin:12px 0 8px;
+  border-bottom:2px solid var(--win-button-shadow);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.section-header::before{
+  content:'>';
+  color:var(--cyber-cyan);
+}
+
+/* =====================================================
+   NEW COMPONENTS FOR FILES/RESEARCH
+   ===================================================== */
+
+/* Form elements */
+.form-group{
+  margin-bottom:12px;
+}
+.form-group label{
+  display:block;
+  font-family:var(--font-mono);
+  font-size:.8rem;
+  font-weight:600;
+  color:var(--cyber-cyan);
+  margin-bottom:6px;
+}
+
+.win-select{
+  background:var(--win-window);
+  border:2px solid;
+  border-color:var(--win-button-shadow) var(--win-button-light) var(--win-button-light) var(--win-button-shadow);
+  padding:4px 8px;
+  font-family:var(--font-terminal);
+  font-size:1rem;
+  color:var(--win-text);
+  cursor:pointer;
+}
+.win-select:focus{outline:2px solid var(--cyber-cyan)}
+
+.win-input{
+  background:#000;
+  border:2px solid;
+  border-color:var(--win-button-shadow) var(--win-button-light) var(--win-button-light) var(--win-button-shadow);
+  padding:6px 10px;
+  font-family:var(--font-terminal);
+  font-size:1.1rem;
+  color:var(--cyber-cyan);
+  outline:none;
+}
+.win-input:focus{box-shadow:inset 0 0 10px rgba(0,255,255,.2)}
+.win-input::placeholder{color:rgba(0,255,255,.3)}
+
+.win-btn-primary{
+  background:var(--win-titlebar);
+  color:white;
+  font-weight:600;
+}
+.win-btn-primary:hover{background:var(--cyber-purple)}
+
+/* Disabled button state */
+.win-btn:disabled{
+  opacity:0.5;
+  cursor:not-allowed;
+}
+.win-btn:disabled:hover{
+  background:var(--win-button-face);
+}
+
+/* Metric boxes */
+.metric-box{
+  background:#000;
+  border:1px solid var(--win-button-shadow);
+  padding:8px;
+  text-align:center;
+}
+.metric-label{
+  font-family:var(--font-mono);
+  font-size:.7rem;
+  font-weight:600;
+  color:var(--cyber-cyan);
+  margin-bottom:4px;
+  letter-spacing:.02em;
+}
+.metric-box .readout{
+  font-family:var(--font-terminal);
+  font-size:1.6rem;
+}
+
+/* Progress bars */
+.progress-bar-wrap{
+  background:#000;
+  border:1px solid var(--win-button-shadow);
+  height:12px;
+  overflow:hidden;
+}
+.progress-bar{
+  height:100%;
+  background:var(--cyber-green);
+  transition:width .3s ease;
+}
+
+/* File editor */
+.file-editor{
+  width:100%;
+  height:350px;
+  background:#000;
+  color:var(--cyber-cyan);
+  font-family:var(--font-terminal);
+  font-size:1.1rem;
+  padding:8px;
+  border:none;
+  resize:vertical;
+  outline:none;
+}
+.file-editor:focus{box-shadow:inset 0 0 20px rgba(0,255,255,.1)}
+.editor-status{
+  padding:4px 8px;
+  font-family:var(--font-terminal);
+  font-size:1rem;
+  background:var(--win-titlebar);
+  color:white;
+}
+
+/* Log list */
+.log-list{
+  background:#000;
+  padding:4px;
+}
+.log-item{
+  padding:6px 8px;
+  font-family:var(--font-terminal);
+  font-size:1rem;
+  color:var(--cyber-cyan);
+  cursor:pointer;
+  border-bottom:1px dotted rgba(0,255,255,.2);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.log-item:hover{background:rgba(0,255,255,.1)}
+.log-item.active{background:var(--win-titlebar);color:white}
+.log-item .file-size{
+  font-size:.9rem;
+  opacity:.6;
+}
+.log-item .file-cat{
+  font-family:var(--font-mono);
+  font-size:.7rem;
+  font-weight:600;
+  padding:3px 8px;
+  border:1px solid;
+  margin-right:8px;
+}
+.cat-configs{border-color:var(--cyber-green);color:var(--cyber-green)}
+.cat-memory{border-color:var(--cyber-pink);color:var(--cyber-pink)}
+.cat-records{border-color:var(--cyber-yellow);color:var(--cyber-yellow)}
+.cat-settings{border-color:var(--cyber-cyan);color:var(--cyber-cyan)}
+
+.file-cat-btn{
+  padding:4px 10px;
+  font-size:.8rem;
+}
+.file-cat-btn.active{
+  background:var(--win-titlebar);
+  color:white;
+}
+
+/* Checkbox label */
+.checkbox-label{
+  font-family:var(--font-terminal);
+  font-size:1rem;
+  color:var(--cyber-cyan);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.checkbox-label input{
+  width:16px;height:16px;
+  cursor:pointer;
+}
+
+/* ESM Popup */
+.esm-popup-overlay{
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,.8);
+  z-index:1000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  animation:fadeIn .3s ease;
+}
+.esm-popup{
+  width:500px;
+  max-width:90%;
+  max-height:80vh;
+  overflow:hidden;
+}
+.esm-content{
+  max-height:50vh;
+  overflow-y:auto;
+  padding:16px;
+}
+.esm-question{
+  margin-bottom:16px;
+}
+.esm-question label{
+  display:block;
+  font-family:var(--font-terminal);
+  font-size:1.1rem;
+  color:var(--cyber-cyan);
+  margin-bottom:8px;
+}
+.esm-question .required{color:var(--cyber-pink)}
+.esm-question input[type="text"],
+.esm-question textarea{
+  width:100%;
+  background:#000;
+  border:2px solid var(--win-button-shadow);
+  padding:8px;
+  font-family:var(--font-terminal);
+  font-size:1rem;
+  color:var(--cyber-cyan);
+}
+.esm-question textarea{height:60px;resize:vertical}
+.esm-slider{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.esm-slider label{
+  flex:1;
+  text-align:center;
+  padding:8px;
+  background:#000;
+  border:1px solid var(--win-button-shadow);
+  cursor:pointer;
+  font-size:.9rem;
+}
+.esm-slider input:checked + label,
+.esm-slider label:has(input:checked){
+  background:var(--win-titlebar);
+  border-color:var(--cyber-cyan);
+}
+.esm-radio{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.esm-radio label{
+  padding:6px 12px;
+  background:#000;
+  border:1px solid var(--win-button-shadow);
+  cursor:pointer;
+  font-size:.9rem;
+}
+.esm-radio input{display:none}
+.esm-radio input:checked + span,
+.esm-radio label:has(input:checked){
+  background:var(--win-titlebar);
+  border-color:var(--cyber-cyan);
+}
+.esm-footer{
+  padding:12px;
+  background:var(--win-window);
+  display:flex;
+  justify-content:space-between;
+}
+
+/* Participant list item */
+.participant-item{
+  padding:8px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px dotted rgba(0,255,255,.2);
+}
+.participant-item:hover{background:rgba(0,255,255,.1)}
+.participant-name{
+  font-family:var(--font-terminal);
+  font-size:1.1rem;
+  color:var(--cyber-cyan);
+}
+.participant-status{
+  font-family:var(--font-mono);
+  font-size:.7rem;
+  font-weight:600;
+  padding:3px 8px;
+  border:1px solid;
+}
+.status-active{border-color:var(--cyber-green);color:var(--cyber-green)}
+.status-paused{border-color:var(--cyber-yellow);color:var(--cyber-yellow)}
+.status-completed{border-color:var(--cyber-cyan);color:var(--cyber-cyan)}
+.status-withdrawn{border-color:var(--cyber-pink);color:var(--cyber-pink)}
+
+/* ESM Response item */
+.esm-response-item{
+  padding:8px;
+  border-bottom:1px dotted rgba(0,255,255,.2);
+}
+.esm-response-item:hover{background:rgba(0,255,255,.05)}
+.esm-response-header{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:4px;
+}
+.esm-response-time{
+  font-family:var(--font-terminal);
+  font-size:.9rem;
+  color:var(--cyber-green);
+}
+.esm-response-participant{
+  font-family:var(--font-mono);
+  font-size:.75rem;
+  font-weight:600;
+  color:var(--cyber-pink);
+}
+.esm-response-preview{
+  font-family:var(--font-terminal);
+  font-size:1rem;
+  color:var(--cyber-cyan);
+  opacity:.8;
+}
+</style>
+</head>
+<body>
+
+<!-- Background Effects -->
+<div class="star-field"></div>
+<div class="stars-container">
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+</div>
+<div class="dither-overlay"></div>
+<div class="scanlines"></div>
+
+<!-- Application -->
+<div class="app-container">
+
+  <!-- Main Window -->
+  <div class="win-window main-window">
+    <div class="win-titlebar">
+      <div class="win-titlebar-text">
+        <div class="win-titlebar-icon">&#9790;</div>
+        <span>MAJOR_TOM.EXE - Mission Control Journal System</span>
+      </div>
+      <div class="win-titlebar-buttons">
+        <div class="win-btn">_</div>
+        <div class="win-btn">&#9633;</div>
+        <div class="win-btn">X</div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div style="background:var(--win-window);padding:4px 4px 0">
+      <div class="nav-tabs">
+        <div class="nav-tab active" onclick="switchTab('dashboard')">DASHBOARD</div>
+        <div class="nav-tab" onclick="switchTab('journal')">JOURNAL</div>
+        <div class="nav-tab" onclick="switchTab('experiments')">EXPERIMENTS</div>
+        <div class="nav-tab" onclick="switchTab('analytics')">ANALYTICS</div>
+        <div class="nav-tab" onclick="switchTab('files')">FILES</div>
+        <div class="nav-tab" onclick="switchTab('research')">RESEARCH</div>
+      </div>
+    </div>
+
+    <div class="win-content">
+
+      <!-- ==================== DASHBOARD ==================== -->
+      <div id="tab-dashboard" class="tab-panel active">
+
+        <!-- Top Stats Row -->
+        <div class="grid grid-4" style="margin-bottom:8px">
+          <div class="win-window comet-card">
+            <div class="win-titlebar">
+              <span>TOTAL_TOKENS</span>
+              <div class="win-btn">?</div>
+            </div>
+            <div class="win-screen" style="text-align:center;padding:12px">
+              <div class="readout readout-lg cyber-cyan" id="totalTokens">0</div>
+              <div class="readout-sub" id="tokenBreakdown">BRAIN:0 EYE:0 EMB:0</div>
+            </div>
+          </div>
+
+          <div class="win-window comet-card">
+            <div class="win-titlebar">
+              <span>TOTAL_DECISIONS</span>
+              <div class="win-btn">?</div>
+            </div>
+            <div class="win-screen" style="text-align:center;padding:12px">
+              <div class="readout readout-lg cyber-pink" id="totalDecisions">0</div>
+              <div class="readout-sub" id="decisionBreakdown">SNAP:0 SKIP:0</div>
+            </div>
+          </div>
+
+          <div class="win-window comet-card">
+            <div class="win-titlebar">
+              <span>SEMANTIC_HIT</span>
+              <div class="win-btn">?</div>
+            </div>
+            <div class="win-screen" style="text-align:center;padding:12px">
+              <div class="readout readout-lg cyber-green" id="semanticRate">0.0%</div>
+              <div class="readout-sub" id="semanticCount">0 HITS</div>
+            </div>
+          </div>
+
+          <div class="win-window comet-card">
+            <div class="win-titlebar">
+              <span>CACHE_HIT</span>
+              <div class="win-btn">?</div>
+            </div>
+            <div class="win-screen" style="text-align:center;padding:12px">
+              <div class="readout readout-lg cyber-yellow" id="cacheRate">0.0%</div>
+              <div class="readout-sub" id="cacheCount">0 HITS</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status & Activity Row -->
+        <div class="grid grid-2" style="margin-bottom:8px">
+          <div class="win-window comet-card">
+            <div class="win-titlebar">
+              <span>SYSTEM_STATUS.DAT</span>
+              <div class="win-btn">?</div>
+            </div>
+            <div class="win-content">
+              <div class="grid grid-2" style="gap:8px">
+                <div>
+                  <div class="status-label">BRAIN_MODEL:</div>
+                  <div class="win-inset" style="font-family:var(--font-terminal);font-size:1rem" id="brainModel">---</div>
+                </div>
+                <div>
+                  <div class="status-label">EYE_MODEL:</div>
+                  <div class="win-inset" style="font-family:var(--font-terminal);font-size:1rem" id="eyeModel">---</div>
+                </div>
+                <div>
+                  <div class="status-label">CURRENT_TASK:</div>
+                  <div class="win-inset" style="font-family:var(--font-terminal);font-size:1rem;color:var(--cyber-pink)" id="currentTask">---</div>
+                </div>
+                <div>
+                  <div class="status-label">UPTIME:</div>
+                  <div class="win-inset" style="font-family:var(--font-terminal);font-size:1rem" id="uptime">---</div>
+                </div>
+              </div>
+              <div style="margin-top:12px">
+                <div class="status-label">ACTIVITY_METER:</div>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <span style="font-family:var(--font-mono);font-size:.75rem;font-weight:600;width:40px">KPM:</span>
+                  <div class="win-progress" style="flex:1"><div class="win-progress-bar" id="kpmBar" style="width:0%"></div></div>
+                  <span style="font-family:var(--font-terminal);font-size:1rem;width:40px" id="kpmVal">0</span>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
+                  <span style="font-family:var(--font-mono);font-size:.75rem;font-weight:600;width:40px">CPM:</span>
+                  <div class="win-progress" style="flex:1"><div class="win-progress-bar" id="cpmBar" style="width:0%"></div></div>
+                  <span style="font-family:var(--font-terminal);font-size:1rem;width:40px" id="cpmVal">0</span>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
+                  <span style="font-family:var(--font-mono);font-size:.75rem;font-weight:600;width:40px">LAT:</span>
+                  <div class="win-progress" style="flex:1"><div class="win-progress-bar" id="latBar" style="width:0%;background:repeating-linear-gradient(90deg,#ff6b9d 0px,#ff6b9d 8px,#6b5b95 8px,#6b5b95 10px)"></div></div>
+                  <span style="font-family:var(--font-terminal);font-size:1rem;width:50px" id="avgLatency">0ms</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="win-window comet-card">
+            <div class="win-titlebar">
+              <span>TRANSMISSION_LOG.TXT</span>
+              <div class="win-btn">?</div>
+            </div>
+            <div class="win-screen">
+              <div class="timeline" id="timeline">
+                <div class="empty"><div class="icon">&#9737;</div>AWAITING TRANSMISSION...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== JOURNAL ==================== -->
+      <div id="tab-journal" class="tab-panel">
+        <div class="search-box">
+          <input type="text" class="search-input" id="searchInput" placeholder="> SEARCH JOURNALS & MEMORIES..." onkeydown="if(event.key==='Enter')doSearch()">
+          <button class="search-btn" onclick="doSearch()">SEARCH</button>
+        </div>
+        <div class="grid grid-1-2">
+          <div>
+            <div class="win-window" style="margin-bottom:8px">
+              <div class="win-titlebar"><span>MISSION_DATES.DIR</span></div>
+              <div class="win-screen sidebar-list" id="journalDays">
+                <div class="empty">LOADING...</div>
+              </div>
+            </div>
+            <div class="win-window">
+              <div class="win-titlebar"><span>MEMORY_BANKS.DIR</span></div>
+              <div class="win-screen sidebar-list" id="memoryList">
+                <div class="empty">LOADING...</div>
+              </div>
+            </div>
+          </div>
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>JOURNAL_VIEWER.EXE</span></div>
+            <div class="win-screen content-area" id="journalContent">
+              <div class="empty"><div class="icon">&#9737;</div>SELECT A MISSION DATE TO VIEW LOG ENTRIES</div>
+            </div>
+          </div>
+        </div>
+        <div id="searchResults" style="margin-top:8px;display:none">
+          <div class="win-window">
+            <div class="win-titlebar"><span>SEARCH_RESULTS.TXT</span></div>
+            <div class="win-screen" id="searchResultsList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== EXPERIMENTS ==================== -->
+      <div id="tab-experiments" class="tab-panel">
+        <div class="grid grid-2" style="gap:8px;margin-bottom:8px">
+          <!-- Config Selection & Run Control -->
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>EXPERIMENT_CONTROL.EXE</span></div>
+            <div class="win-screen" style="padding:12px">
+              <div class="form-group">
+                <label>Select Config:</label>
+                <select id="expConfigSelect" class="win-select" style="width:100%"></select>
+              </div>
+              <div class="form-group">
+                <label>Trace Directory:</label>
+                <select id="expTraceSelect" class="win-select" style="width:100%">
+                  <option value="experiments/traces/coding_60m">coding_60m</option>
+                  <option value="experiments/traces/research_60m">research_60m</option>
+                  <option value="experiments/traces/mixed_60m" selected>mixed_60m</option>
+                </select>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:12px">
+                <button class="win-btn win-btn-primary" id="btnStartExp" onclick="startExperiment()">▶ START</button>
+                <button class="win-btn" id="btnStopExp" onclick="stopExperiment()" disabled>⏹ STOP</button>
+              </div>
+              <div id="expRunStatus" style="margin-top:12px;display:none">
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                  <span style="font-family:var(--font-mono);font-size:.85rem;font-weight:600" id="expStatusText">RUNNING...</span>
+                  <span style="font-family:var(--font-terminal);color:var(--cyber-cyan)" id="expProgress">0%</span>
+                </div>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar" id="expProgressBar" style="width:0%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Live Metrics -->
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>LIVE_METRICS.MON</span></div>
+            <div class="win-screen" style="padding:8px">
+              <div class="grid grid-2" style="gap:8px">
+                <div class="metric-box">
+                  <div class="metric-label">TOKENS</div>
+                  <div class="readout cyber-cyan" id="liveTokens">0</div>
+                </div>
+                <div class="metric-box">
+                  <div class="metric-label">LLM CALLS</div>
+                  <div class="readout cyber-pink" id="liveLlmCalls">0</div>
+                </div>
+                <div class="metric-box">
+                  <div class="metric-label">SNAPSHOTS</div>
+                  <div class="readout cyber-green" id="liveSnapshots">0</div>
+                </div>
+                <div class="metric-box">
+                  <div class="metric-label">SKIPS</div>
+                  <div class="readout cyber-yellow" id="liveSkips">0</div>
+                </div>
+              </div>
+              <div style="margin-top:8px">
+                <div class="metric-label">CACHE HIT RATE</div>
+                <div class="progress-bar-wrap"><div class="progress-bar" id="liveCacheBar" style="width:0%;background:var(--cyber-pink)"></div></div>
+              </div>
+              <div style="margin-top:4px">
+                <div class="metric-label">SEMANTIC FILTER RATE</div>
+                <div class="progress-bar-wrap"><div class="progress-bar" id="liveSemanticBar" style="width:0%;background:var(--cyber-cyan)"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Config Table -->
+        <div class="win-window comet-card" style="margin-bottom:8px">
+          <div class="win-titlebar"><span>EXPERIMENT_CONFIGS.DAT</span></div>
+          <div class="win-content" style="overflow-x:auto;max-height:200px">
+            <table class="data-table" id="expConfigTable">
+              <thead><tr><th>DESIGNATION</th><th>DIMENSION</th><th>DESCRIPTION</th><th>ACTION</th></tr></thead>
+              <tbody id="expConfigBody"><tr><td colspan="4" class="empty">LOADING CONFIGS...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Results Table -->
+        <div class="win-window comet-card">
+          <div class="win-titlebar"><span>MISSION_RESULTS.DAT</span></div>
+          <div class="win-content" style="overflow-x:auto;max-height:200px">
+            <table class="data-table" id="expResultsTable">
+              <thead><tr><th>EXPERIMENT</th><th>RUN</th><th>TRACE</th><th>DURATION</th><th>TOKENS</th><th>DECISIONS</th><th>SEMANTIC%</th></tr></thead>
+              <tbody id="expResultsBody"><tr><td colspan="7" class="empty">NO RESULTS - RUN EXPERIMENTS TO POPULATE</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== ANALYTICS ==================== -->
+      <div id="tab-analytics" class="tab-panel">
+        <div class="grid grid-4" style="margin-bottom:8px">
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>TOKENS/DEC</span></div>
+            <div class="win-screen" style="text-align:center;padding:8px">
+              <div class="readout readout-md cyber-cyan" id="aTokensPerDec">---</div>
+            </div>
+          </div>
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>BRAIN_RATE</span></div>
+            <div class="win-screen" style="text-align:center;padding:8px">
+              <div class="readout readout-md cyber-pink" id="aBrainRate">---</div>
+            </div>
+          </div>
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>VLM_RATE</span></div>
+            <div class="win-screen" style="text-align:center;padding:8px">
+              <div class="readout readout-md cyber-green" id="aVlmRate">---</div>
+            </div>
+          </div>
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>P95_LATENCY</span></div>
+            <div class="win-screen" style="text-align:center;padding:8px">
+              <div class="readout readout-md cyber-yellow" id="aP95">---</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-2">
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>TOKEN_USAGE.GRF</span></div>
+            <div class="win-screen"><div class="chart-wrap"><canvas id="tokenChart"></canvas></div></div>
+          </div>
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>DECISION_SOURCES.GRF</span></div>
+            <div class="win-screen"><div class="chart-wrap"><canvas id="decisionChart"></canvas></div></div>
+          </div>
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>LATENCY_MONITOR.GRF</span></div>
+            <div class="win-screen"><div class="chart-wrap"><canvas id="latencyChart"></canvas></div></div>
+          </div>
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>TOKEN_SOURCE.GRF</span></div>
+            <div class="win-screen"><div class="chart-wrap"><canvas id="tokenSourceChart"></canvas></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== FILES ==================== -->
+      <div id="tab-files" class="tab-panel">
+        <div class="grid grid-2" style="gap:8px">
+          <!-- File List -->
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>FILE_EXPLORER.EXE</span></div>
+            <div class="win-screen" style="padding:0">
+              <div style="display:flex;gap:4px;padding:6px;border-bottom:1px solid var(--win-button-shadow)">
+                <button class="win-btn file-cat-btn active" onclick="loadFileCategory('all',this)">ALL</button>
+                <button class="win-btn file-cat-btn" onclick="loadFileCategory('configs',this)">CONFIGS</button>
+                <button class="win-btn file-cat-btn" onclick="loadFileCategory('memory',this)">MEMORY</button>
+                <button class="win-btn file-cat-btn" onclick="loadFileCategory('records',this)">RECORDS</button>
+                <button class="win-btn file-cat-btn" onclick="loadFileCategory('settings',this)">SETTINGS</button>
+              </div>
+              <div class="log-list" id="fileList" style="max-height:400px;overflow-y:auto"></div>
+            </div>
+          </div>
+          <!-- File Editor -->
+          <div class="win-window comet-card">
+            <div class="win-titlebar">
+              <span id="editorTitle">EDITOR.EXE</span>
+              <div class="win-titlebar-buttons">
+                <button class="win-btn" onclick="saveFile()" title="Save">💾</button>
+                <button class="win-btn" onclick="reloadFile()" title="Reload">🔄</button>
+              </div>
+            </div>
+            <div class="win-screen" style="padding:0">
+              <textarea id="fileEditor" class="file-editor" placeholder="Select a file to edit..."></textarea>
+              <div id="editorStatus" class="editor-status"></div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button class="win-btn" onclick="hotReloadConfig()">🔥 HOT RELOAD CONFIG</button>
+          <span id="reloadStatus" style="font-family:var(--font-terminal);color:var(--cyber-green);font-size:1.2rem"></span>
+        </div>
+      </div>
+
+      <!-- ==================== RESEARCH ==================== -->
+      <div id="tab-research" class="tab-panel">
+        <div class="grid grid-2" style="gap:8px">
+          <!-- ESM Control -->
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>ESM_CONTROL.EXE</span></div>
+            <div class="win-screen" style="padding:12px">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+                <span style="font-family:var(--font-pixel);font-size:.6rem">ESM STATUS:</span>
+                <span id="esmStatus" class="readout" style="color:var(--cyber-green)">ACTIVE</span>
+              </div>
+              <div class="form-group">
+                <label>Interval (hours):</label>
+                <select id="esmInterval" class="win-select">
+                  <option value="2">2 Hours</option>
+                  <option value="4" selected>4 Hours</option>
+                  <option value="6">6 Hours</option>
+                  <option value="8">8 Hours</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Next Trigger:</label>
+                <span id="esmNextTrigger" class="readout" style="font-size:1.2rem">--:--</span>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:12px">
+                <button class="win-btn win-btn-primary" onclick="triggerESM()">▶ TRIGGER NOW</button>
+                <button class="win-btn" onclick="toggleESM()">⏸ PAUSE</button>
+              </div>
+            </div>
+          </div>
+          <!-- Participants -->
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>PARTICIPANTS.DB</span></div>
+            <div class="win-screen" style="padding:0">
+              <div class="log-list" id="participantList" style="max-height:200px;overflow-y:auto"></div>
+              <div style="padding:8px;border-top:1px solid var(--win-button-shadow)">
+                <input type="text" id="newParticipantName" class="win-input" placeholder="Participant name..." style="width:calc(100% - 80px)">
+                <button class="win-btn" onclick="addParticipant()">+ ADD</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ESM Responses -->
+        <div class="win-window comet-card" style="margin-top:8px">
+          <div class="win-titlebar"><span>ESM_RESPONSES.LOG</span></div>
+          <div class="win-screen" style="padding:0">
+            <div class="log-list" id="esmResponseList" style="max-height:200px;overflow-y:auto"></div>
+          </div>
+        </div>
+        <!-- Export -->
+        <div class="win-window comet-card" style="margin-top:8px">
+          <div class="win-titlebar"><span>DATA_EXPORT.EXE</span></div>
+          <div class="win-screen" style="padding:12px">
+            <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center">
+              <label class="checkbox-label"><input type="checkbox" id="exportAnonymize" checked> Anonymize IDs</label>
+              <label class="checkbox-label"><input type="checkbox" id="exportRemovePaths" checked> Remove Paths</label>
+              <label class="checkbox-label"><input type="checkbox" id="exportIncludeLogs"> Include Raw Logs</label>
+              <select id="exportFormat" class="win-select">
+                <option value="json">JSON</option>
+                <option value="csv">CSV</option>
+              </select>
+              <button class="win-btn win-btn-primary" onclick="exportData()">📥 EXPORT</button>
+            </div>
+            <div id="exportStatus" style="margin-top:8px;font-family:var(--font-terminal);color:var(--cyber-cyan)"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ESM Popup Modal -->
+<div id="esmPopup" class="esm-popup-overlay" style="display:none">
+  <div class="win-window esm-popup">
+    <div class="win-titlebar" style="background:linear-gradient(90deg, var(--cyber-purple), var(--cyber-pink))">
+      <span>MAJOR TOM · EXPERIENCE SAMPLING</span>
+      <button class="win-btn" onclick="closeESM()">×</button>
+    </div>
+    <div class="win-screen esm-content" id="esmContent">
+      <!-- Questions will be inserted here -->
+    </div>
+    <div class="esm-footer">
+      <button class="win-btn" onclick="snoozeESM()">⏰ REMIND LATER</button>
+      <button class="win-btn win-btn-primary" onclick="submitESM()">✓ SUBMIT</button>
+    </div>
+  </div>
+</div>
+
+<!-- Taskbar -->
+<div class="taskbar">
+  <button class="start-button">
+    <div class="start-icon"></div>
+    START
+  </button>
+  <div class="taskbar-divider"></div>
+  <div class="win-btn" style="width:auto;padding:4px 10px;font-size:.8rem">
+    MAJOR_TOM.EXE
+  </div>
+  <div class="taskbar-tray">
+    <div class="tray-led" id="trayLed"></div>
+    <span id="statusText">ONLINE</span>
+    <span id="taskbarTime">00:00</span>
+  </div>
+</div>
+
+<script>
+/* ============ STATE ============ */
+let currentTab = 'dashboard';
+let refreshInterval = null;
+let charts = {};
+
+/* ============ TAB SWITCHING ============ */
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    if (t.textContent.toLowerCase() === tab) t.classList.add('active');
+  });
+  if (tab === 'journal') loadJournal();
+  if (tab === 'experiments') loadExperiments();
+  if (tab === 'analytics') loadAnalytics();
+}
+
+/* ============ API HELPER ============ */
+async function api(path) {
+  try {
+    const r = await fetch(path);
+    if (!r.ok) return null;
+    return await r.json();
+  } catch { return null; }
+}
+
+/* ============ FORMATTING ============ */
+function fmt(n) {
+  if (n == null || isNaN(n)) return '0';
+  if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
+  return String(Math.round(n));
+}
+function pct(n) {
+  if (n == null || isNaN(n)) return '0.0%';
+  return (n * 100).toFixed(1) + '%';
+}
+function formatUptime(s) {
+  if (!s) return '---';
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60);
+  return h > 0 ? h+'H '+m+'M' : m+'M';
+}
+
+/* ============ CLOCK ============ */
+function updateClock() {
+  const now = new Date();
+  document.getElementById('taskbarTime').textContent =
+    now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* ============ DASHBOARD ============ */
+async function refreshDashboard() {
+  const [status, current, summary, recent] = await Promise.all([
+    api('/api/monitoring/status'),
+    api('/api/monitoring/current'),
+    api('/api/metrics/summary'),
+    api('/api/monitoring/recent?limit=30'),
+  ]);
+
+  if (status) {
+    const led = document.getElementById('trayLed');
+    const txt = document.getElementById('statusText');
+    led.className = 'tray-led ' + (status.running ? '' : 'offline');
+    txt.textContent = status.running ? 'ONLINE' : 'OFFLINE';
+    document.getElementById('brainModel').textContent = status.brain_model || '---';
+    document.getElementById('eyeModel').textContent = status.eye_model || '---';
+    document.getElementById('currentTask').textContent = status.current_task_id || '---';
+    document.getElementById('uptime').textContent = formatUptime(status.uptime_seconds);
+  }
+
+  if (current) {
+    const kpm = current.kpm || 0, cpm = current.cpm || 0;
+    document.getElementById('kpmVal').textContent = kpm;
+    document.getElementById('cpmVal').textContent = cpm;
+    document.getElementById('kpmBar').style.width = Math.min(kpm/300*100,100)+'%';
+    document.getElementById('cpmBar').style.width = Math.min(cpm/60*100,100)+'%';
+  }
+
+  if (summary) {
+    const tk = summary.token_metrics || {}, rt = summary.routing_metrics || {}, lt = summary.latency_metrics || {};
+    document.getElementById('totalTokens').textContent = fmt(tk.total_tokens);
+    document.getElementById('tokenBreakdown').textContent =
+      'BRAIN:' + fmt(tk.brain_tokens_total) + ' EYE:' + fmt(tk.eye_tokens_total) + ' EMB:' + fmt(tk.embedding_tokens_total);
+    document.getElementById('totalDecisions').textContent = fmt(rt.total_decisions);
+    document.getElementById('decisionBreakdown').textContent =
+      'SNAP:' + fmt(rt.snapshot_count) + ' SKIP:' + fmt(rt.skip_count);
+    document.getElementById('semanticRate').textContent = pct(rt.semantic_hit_rate);
+    document.getElementById('semanticCount').textContent = fmt(rt.semantic_hit_count) + ' HITS';
+    document.getElementById('cacheRate').textContent = pct(rt.cache_hit_rate);
+    document.getElementById('cacheCount').textContent = fmt(rt.cache_hit_count) + ' HITS';
+    const latMs = lt.decision_avg_ms || 0;
+    document.getElementById('avgLatency').textContent = latMs.toFixed(0) + 'ms';
+    document.getElementById('latBar').style.width = Math.min(latMs/5000*100,100)+'%';
+  }
+
+  // Render timeline
+  const tl = document.getElementById('timeline');
+  if (recent && recent.length > 0) {
+    tl.innerHTML = recent.slice().reverse().map(e => {
+      const t = e.timestamp ? e.timestamp.split('T')[1] || e.timestamp : '';
+      const time = t.substring(0, 8);
+      const type = e.type || '';
+      const d = e.data || {};
+      let badge = 'badge-skip', badgeText = type.toUpperCase();
+      if (type === 'decision') {
+        badge = d.action === 'SNAPSHOT' ? 'badge-snapshot' : 'badge-skip';
+        badgeText = d.action || 'DECISION';
+      } else if (type === 'task_switch') {
+        badge = 'badge-switch'; badgeText = 'SWITCH';
+      } else if (type === 'journal_entry') {
+        badge = 'badge-snapshot'; badgeText = d.type || 'ENTRY';
+      } else if (type === 'idle_start' || type === 'idle_end') {
+        badge = 'badge-idle'; badgeText = type === 'idle_start' ? 'AWAY' : 'BACK';
+      }
+      let text = '';
+      if (d.title) text = d.title;
+      else if (d.to_task) text = d.from_task + ' > ' + d.to_task;
+      else if (d.preview) text = d.preview.substring(0, 60);
+      else if (d.task_id) text = d.task_id;
+      else text = JSON.stringify(d).substring(0, 60);
+      return '<div class="timeline-item">' +
+        '<span class="timeline-time">' + time + '</span>' +
+        '<span class="timeline-badge ' + badge + '">' + badgeText + '</span>' +
+        '<span class="timeline-text">' + text.replace(/</g,'&lt;') + '</span>' +
+      '</div>';
+    }).join('');
+  } else if (recent && recent.length === 0) {
+    tl.innerHTML = '<div class="empty">NO TRANSMISSIONS YET</div>';
+  }
+}
+
+/* ============ JOURNAL ============ */
+async function loadJournal() {
+  const [days, memories] = await Promise.all([
+    api('/api/journal/days'),
+    api('/api/journal/memories'),
+  ]);
+
+  const daysEl = document.getElementById('journalDays');
+  if (days && days.length > 0) {
+    daysEl.innerHTML = days.map(d =>
+      '<div class="list-item" onclick="loadJournalDay(\''+d.date+'\',this)">' +
+        '<span>'+d.date+'</span><span class="list-count">'+d.entry_count+'</span>' +
+      '</div>'
+    ).join('');
+  } else {
+    daysEl.innerHTML = '<div class="empty">NO MISSION LOGS RECORDED</div>';
+  }
+
+  const memEl = document.getElementById('memoryList');
+  if (memories && memories.length > 0) {
+    memEl.innerHTML = memories.map(m =>
+      '<div class="list-item" onclick="loadMemory(\''+m.task_id+'\')">' +
+        '<span style="color:var(--cyber-pink)">'+m.task_id+'</span>' +
+        '<span class="list-count">'+(m.size_bytes/1024).toFixed(1)+'KB</span>' +
+      '</div>'
+    ).join('');
+  } else {
+    memEl.innerHTML = '<div class="empty">NO MEMORY BANKS ALLOCATED</div>';
+  }
+}
+
+async function loadJournalDay(date, el) {
+  document.querySelectorAll('#journalDays .list-item').forEach(d => d.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const data = await api('/api/journal/day/' + date);
+  const content = document.getElementById('journalContent');
+  if (data) {
+    content.innerHTML = renderMarkdown(data.content);
+  } else {
+    content.innerHTML = '<div class="empty" style="color:var(--cyber-pink)">TRANSMISSION ERROR</div>';
+  }
+}
+
+async function loadMemory(taskId) {
+  const data = await api('/api/journal/memory/' + taskId);
+  const content = document.getElementById('journalContent');
+  if (data) {
+    content.innerHTML = '<h3>MEMORY_BANK: ' + taskId + '</h3>' + renderMarkdown(data.content);
+  }
+}
+
+function renderMarkdown(text) {
+  if (!text) return '';
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/^### (.+)$/gm,'<h3>$1</h3>')
+    .replace(/^## (.+)$/gm,'<h2>$1</h2>')
+    .replace(/^# (.+)$/gm,'<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong style="color:var(--cyber-pink)">$1</strong>')
+    .replace(/`(.+?)`/g,'<code>$1</code>')
+    .replace(/^> (.+)$/gm,'<blockquote>$1</blockquote>')
+    .replace(/^---$/gm,'<hr style="border:none;border-top:1px dashed var(--cyber-cyan);margin:12px 0">')
+    .replace(/^- (.+)$/gm,'<div style="padding-left:12px">> $1</div>')
+    .replace(/\n/g,'<br>');
+}
+
+async function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  const data = await api('/api/journal/search?q=' + encodeURIComponent(q));
+  const container = document.getElementById('searchResults');
+  const list = document.getElementById('searchResultsList');
+  if (data && data.length > 0) {
+    container.style.display = 'block';
+    list.innerHTML = data.map(r =>
+      '<div class="timeline-item">' +
+        '<span class="timeline-badge '+(r.source === 'journal' ? 'badge-snapshot' : 'badge-switch')+'">'+r.source.toUpperCase()+'</span>' +
+        '<span class="timeline-time" style="font-size:.9rem">'+r.file+':'+r.line_number+'</span>' +
+        '<span class="timeline-text">'+r.content.replace(/</g,'&lt;')+'</span>' +
+      '</div>'
+    ).join('');
+  } else {
+    container.style.display = 'block';
+    list.innerHTML = '<div class="empty">NO MATCHES FOUND</div>';
+  }
+}
+
+/* ============ EXPERIMENTS ============ */
+async function loadExperiments() {
+  const [configs, results] = await Promise.all([
+    api('/api/experiments/configs'),
+    api('/api/experiments/results'),
+  ]);
+
+  const cb = document.getElementById('expConfigBody');
+  if (configs && configs.length > 0) {
+    cb.innerHTML = configs.map(c => {
+      const dimColor = c.dimension.includes('token') ? 'cyber-cyan' : c.dimension.includes('memory') ? 'cyber-yellow' : 'cyber-pink';
+      return '<tr>' +
+        '<td style="color:var(--cyber-green)">'+c.name+'</td>' +
+        '<td><span class="dim-badge" style="border-color:var(--'+dimColor+');color:var(--'+dimColor+')">'+c.dimension.toUpperCase()+'</span></td>' +
+        '<td>'+c.description+'</td>' +
+        '<td style="font-size:.85rem;opacity:.7">'+c.path.split('/').pop()+'</td>' +
+      '</tr>';
+    }).join('');
+  } else {
+    cb.innerHTML = '<tr><td colspan="4" class="empty">NO CONFIGS FOUND</td></tr>';
+  }
+
+  const rb = document.getElementById('expResultsBody');
+  if (results && results.length > 0) {
+    rb.innerHTML = results.map(r => {
+      const exp = r.experiment || {};
+      const tk = (r.token_metrics || {});
+      const rt = (r.routing_metrics || {});
+      return '<tr>' +
+        '<td style="color:var(--cyber-green)">'+(exp.name || '---')+'</td>' +
+        '<td>'+(exp.run_id ?? '---')+'</td>' +
+        '<td style="font-size:.85rem">'+((exp.trace || '').split('/').pop() || '---')+'</td>' +
+        '<td>'+(exp.duration_seconds ? exp.duration_seconds.toFixed(0) + 'S' : '---')+'</td>' +
+        '<td>'+fmt(tk.total_tokens)+'</td>' +
+        '<td>'+fmt(rt.total_decisions)+'</td>' +
+        '<td>'+pct(rt.semantic_hit_rate)+'</td>' +
+      '</tr>';
+    }).join('');
+  } else {
+    rb.innerHTML = '<tr><td colspan="7" class="empty">NO RESULTS - INITIATE EXPERIMENTS TO POPULATE</td></tr>';
+  }
+}
+
+/* ============ ANALYTICS ============ */
+const cyberCyan = '#00ffff';
+const cyberPink = '#ff6b9d';
+const cyberGreen = '#00ff00';
+const cyberYellow = '#ffff00';
+const gridColor = 'rgba(0,255,255,.15)';
+const tickColor = 'rgba(0,255,255,.6)';
+
+const chartOpts = {
+  responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false}},
+  scales:{
+    x:{grid:{color:gridColor},ticks:{color:tickColor,font:{family:'VT323',size:12}},border:{color:'rgba(0,255,255,.3)'}},
+    y:{grid:{color:gridColor},ticks:{color:tickColor,font:{family:'VT323',size:12}},border:{color:'rgba(0,255,255,.3)'}}
+  },
+  elements:{point:{radius:3,backgroundColor:cyberCyan},line:{borderWidth:2}}
+};
+
+const radarOpts = {
+  responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{position:'bottom',labels:{color:tickColor,font:{family:'VT323',size:12}}}},
+  scales:{
+    r:{
+      grid:{color:gridColor},
+      angleLines:{color:gridColor},
+      pointLabels:{color:tickColor,font:{family:'VT323',size:12}},
+      ticks:{display:false}
+    }
+  }
+};
+
+async function loadAnalytics() {
+  const [summary, tokens, decisions, latency] = await Promise.all([
+    api('/api/metrics/summary'),
+    api('/api/metrics/tokens'),
+    api('/api/metrics/decisions'),
+    api('/api/metrics/latency'),
+  ]);
+
+  if (summary) {
+    const tk = summary.token_metrics || {}, rt = summary.routing_metrics || {}, lt = summary.latency_metrics || {};
+    document.getElementById('aTokensPerDec').textContent = fmt(Math.round(tk.tokens_per_decision || 0));
+    document.getElementById('aBrainRate').textContent = pct(rt.llm_brain_call_rate);
+    document.getElementById('aVlmRate').textContent = pct(rt.vlm_effective_rate);
+    document.getElementById('aP95').textContent = (lt.decision_p95_ms || 0).toFixed(0) + 'MS';
+
+    // Token source polar
+    if (charts.tokenSource) charts.tokenSource.destroy();
+    charts.tokenSource = new Chart(document.getElementById('tokenSourceChart'), {
+      type:'polarArea',
+      data:{
+        labels:['BRAIN','VLM','EMBED'],
+        datasets:[{data:[tk.brain_tokens_total||0,tk.eye_tokens_total||0,tk.embedding_tokens_total||0],
+          backgroundColor:['rgba(0,255,255,.4)','rgba(255,107,157,.4)','rgba(0,255,0,.4)'],
+          borderColor:[cyberCyan,cyberPink,cyberGreen],borderWidth:2}]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom',labels:{color:tickColor,font:{family:'VT323',size:12}}}},
+        scales:{r:{grid:{color:gridColor},ticks:{display:false}}}
+      }
+    });
+  }
+
+  // Token line chart
+  if (tokens && tokens.length > 0) {
+    if (charts.token) charts.token.destroy();
+    charts.token = new Chart(document.getElementById('tokenChart'), {
+      type:'line',
+      data:{
+        labels:tokens.map(t => t.offset_seconds + 'S'),
+        datasets:[{data:tokens.map(t => t.value),borderColor:cyberCyan,backgroundColor:'rgba(0,255,255,.1)',fill:true,tension:.3}]
+      },
+      options:chartOpts
+    });
+  }
+
+  // Decision radar
+  if (decisions && decisions.length > 0) {
+    const counts = {};
+    decisions.forEach(d => { const s = d.decision_source || 'UNKNOWN'; counts[s] = (counts[s]||0)+1; });
+    if (charts.decision) charts.decision.destroy();
+    charts.decision = new Chart(document.getElementById('decisionChart'), {
+      type:'radar',
+      data:{
+        labels:Object.keys(counts),
+        datasets:[{
+          label:'DECISIONS',
+          data:Object.values(counts),
+          borderColor:cyberPink,backgroundColor:'rgba(255,107,157,.2)',
+          borderWidth:2,pointBackgroundColor:cyberPink
+        }]
+      },
+      options:radarOpts
+    });
+  }
+
+  // Latency line chart
+  if (latency && latency.length > 0) {
+    if (charts.latency) charts.latency.destroy();
+    charts.latency = new Chart(document.getElementById('latencyChart'), {
+      type:'line',
+      data:{
+        labels:latency.map(t => t.offset_seconds + 'S'),
+        datasets:[{data:latency.map(t => t.value),borderColor:cyberYellow,backgroundColor:'rgba(255,255,0,.1)',fill:true,tension:.3}]
+      },
+      options:{
+        ...chartOpts,
+        scales:{
+          x:{grid:{color:gridColor},ticks:{color:'rgba(255,255,0,.6)',font:{family:'VT323',size:12}},border:{color:'rgba(255,255,0,.3)'}},
+          y:{grid:{color:gridColor},ticks:{color:'rgba(255,255,0,.6)',font:{family:'VT323',size:12}},border:{color:'rgba(255,255,0,.3)'}}
+        }
+      }
+    });
+  }
+}
+
+/* ============ AUTO REFRESH ============ */
+function startRefresh() {
+  refreshDashboard();
+  refreshInterval = setInterval(() => {
+    if (currentTab === 'dashboard') refreshDashboard();
+  }, 5000);
+}
+startRefresh();
+
+/* ============ EXPERIMENT CONTROL ============ */
+let currentExpRunId = null;
+let expWebSocket = null;
+
+async function loadExperimentConfigs() {
+  const configs = await api('/api/experiments/configs');
+  const select = document.getElementById('expConfigSelect');
+  if (configs && configs.length > 0) {
+    select.innerHTML = configs.map(c =>
+      '<option value="' + c.name + '">' + c.name + ' (' + c.dimension + ')</option>'
+    ).join('');
+  } else {
+    select.innerHTML = '<option value="">No configs found</option>';
+  }
+}
+
+async function startExperiment() {
+  const configName = document.getElementById('expConfigSelect').value;
+  const traceDir = document.getElementById('expTraceSelect').value;
+  if (!configName) {
+    alert('Please select a config');
+    return;
+  }
+
+  document.getElementById('btnStartExp').disabled = true;
+  document.getElementById('btnStopExp').disabled = false;
+  document.getElementById('expRunStatus').style.display = 'block';
+  document.getElementById('expStatusText').textContent = 'INITIALIZING...';
+
+  try {
+    const response = await fetch('/api/control/experiments/run/' + encodeURIComponent(configName) + '?trace_dir=' + encodeURIComponent(traceDir), {
+      method: 'POST'
+    });
+    const data = await response.json();
+
+    if (data.run_id) {
+      currentExpRunId = data.run_id;
+      document.getElementById('expStatusText').textContent = 'RUNNING: ' + data.run_id;
+      connectExperimentStream(data.run_id);
+    } else {
+      throw new Error(data.detail || 'Failed to start experiment');
+    }
+  } catch (err) {
+    document.getElementById('expStatusText').textContent = 'ERROR: ' + err.message;
+    document.getElementById('btnStartExp').disabled = false;
+    document.getElementById('btnStopExp').disabled = true;
+  }
+}
+
+function connectExperimentStream(runId) {
+  const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const wsUrl = wsProtocol + '//' + window.location.host + '/api/control/experiments/run/' + runId + '/stream';
+
+  expWebSocket = new WebSocket(wsUrl);
+
+  expWebSocket.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    const msgType = data.type;
+
+    // Handle different message types
+    if (msgType === 'init') {
+      // Initial state
+      if (data.state) {
+        document.getElementById('expStatusText').textContent = 'RUNNING: ' + data.state.current_step;
+        if (data.state.progress) {
+          document.getElementById('expProgress').textContent = (data.state.progress * 100).toFixed(0) + '%';
+          document.getElementById('expProgressBar').style.width = (data.state.progress * 100) + '%';
+        }
+      }
+    } else if (msgType === 'progress') {
+      // Progress update with metrics
+      if (data.progress !== undefined) {
+        document.getElementById('expProgress').textContent = (data.progress * 100).toFixed(0) + '%';
+        document.getElementById('expProgressBar').style.width = (data.progress * 100) + '%';
+      }
+      if (data.metrics) {
+        updateLiveMetrics(data.metrics);
+      }
+    } else if (msgType === 'step') {
+      // Step update
+      if (data.step) {
+        document.getElementById('expStatusText').textContent = data.step;
+      }
+      if (data.progress !== undefined) {
+        document.getElementById('expProgress').textContent = (data.progress * 100).toFixed(0) + '%';
+        document.getElementById('expProgressBar').style.width = (data.progress * 100) + '%';
+      }
+    } else if (msgType === 'completed' || msgType === 'stopped' || msgType === 'error') {
+      // Experiment finished
+      document.getElementById('expStatusText').textContent = msgType.toUpperCase();
+      document.getElementById('btnStartExp').disabled = false;
+      document.getElementById('btnStopExp').disabled = true;
+      if (data.metrics) {
+        updateLiveMetrics(data.metrics);
+      }
+      if (expWebSocket) expWebSocket.close();
+      loadExperiments(); // Refresh results table
+    } else if (msgType === 'heartbeat') {
+      // Keep alive, ignore
+    }
+  };
+
+  expWebSocket.onerror = function(error) {
+    console.error('WebSocket error:', error);
+    document.getElementById('expStatusText').textContent = 'CONNECTION ERROR';
+  };
+
+  expWebSocket.onclose = function() {
+    expWebSocket = null;
+  };
+}
+
+function updateLiveMetrics(metrics) {
+  if (metrics.total_tokens !== undefined) {
+    document.getElementById('liveTokens').textContent = fmt(metrics.total_tokens);
+  }
+  if (metrics.llm_calls !== undefined) {
+    document.getElementById('liveLlmCalls').textContent = fmt(metrics.llm_calls);
+  }
+  if (metrics.snapshot_count !== undefined) {
+    document.getElementById('liveSnapshots').textContent = fmt(metrics.snapshot_count);
+  }
+  if (metrics.skip_count !== undefined) {
+    document.getElementById('liveSkips').textContent = fmt(metrics.skip_count);
+  }
+  if (metrics.cache_hit_rate !== undefined) {
+    document.getElementById('liveCacheBar').style.width = (metrics.cache_hit_rate * 100) + '%';
+  }
+  if (metrics.semantic_filter_rate !== undefined) {
+    document.getElementById('liveSemanticBar').style.width = (metrics.semantic_filter_rate * 100) + '%';
+  }
+}
+
+async function stopExperiment() {
+  if (!currentExpRunId) return;
+
+  try {
+    await fetch('/api/control/experiments/run/' + currentExpRunId + '/stop', { method: 'POST' });
+    document.getElementById('expStatusText').textContent = 'STOPPING...';
+  } catch (err) {
+    console.error('Failed to stop experiment:', err);
+  }
+}
+
+/* ============ FILE MANAGEMENT ============ */
+let currentFilePath = null;
+let fileModified = false;
+
+async function loadFileCategory(category, btn) {
+  // Update button states
+  document.querySelectorAll('.file-cat-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  const url = category === 'all' ? '/api/files/list' : '/api/files/list?category=' + category;
+  const files = await api(url);
+
+  const list = document.getElementById('fileList');
+  if (files && files.length > 0) {
+    list.innerHTML = files.map(f => {
+      const catClass = 'cat-' + f.category;
+      return '<div class="log-item" onclick="loadFile(\'' + f.path.replace(/'/g, "\\'") + '\')">' +
+        '<div><span class="file-cat ' + catClass + '">' + f.category.toUpperCase() + '</span>' + f.name + '</div>' +
+        '<span class="file-size">' + (f.size / 1024).toFixed(1) + 'KB</span>' +
+      '</div>';
+    }).join('');
+  } else {
+    list.innerHTML = '<div class="empty">NO FILES FOUND</div>';
+  }
+}
+
+async function loadFile(path) {
+  if (fileModified && !confirm('Discard unsaved changes?')) return;
+
+  try {
+    const response = await fetch('/api/files/read?path=' + encodeURIComponent(path));
+    const data = await response.json();
+
+    if (response.ok) {
+      currentFilePath = path;
+      document.getElementById('fileEditor').value = data.content;
+      document.getElementById('editorTitle').textContent = 'EDITING: ' + path.split('/').pop();
+      document.getElementById('editorStatus').textContent = 'Loaded: ' + path;
+      fileModified = false;
+
+      // Highlight in list
+      document.querySelectorAll('#fileList .log-item').forEach(item => item.classList.remove('active'));
+      document.querySelectorAll('#fileList .log-item').forEach(item => {
+        if (item.onclick.toString().includes(path)) item.classList.add('active');
+      });
+    } else {
+      document.getElementById('editorStatus').textContent = 'Error: ' + (data.detail || 'Failed to load');
+    }
+  } catch (err) {
+    document.getElementById('editorStatus').textContent = 'Error: ' + err.message;
+  }
+}
+
+async function saveFile() {
+  if (!currentFilePath) {
+    alert('No file selected');
+    return;
+  }
+
+  const content = document.getElementById('fileEditor').value;
+
+  try {
+    const response = await fetch('/api/files/write', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: currentFilePath, content: content })
+    });
+    const data = await response.json();
+
+    if (response.ok) {
+      document.getElementById('editorStatus').textContent = 'Saved: ' + currentFilePath + (data.message ? ' - ' + data.message : '');
+      document.getElementById('editorStatus').style.color = 'var(--cyber-green)';
+      fileModified = false;
+      setTimeout(() => {
+        document.getElementById('editorStatus').style.color = '';
+      }, 3000);
+    } else {
+      document.getElementById('editorStatus').textContent = 'Error: ' + (data.detail || 'Failed to save');
+      document.getElementById('editorStatus').style.color = 'var(--cyber-pink)';
+    }
+  } catch (err) {
+    document.getElementById('editorStatus').textContent = 'Error: ' + err.message;
+    document.getElementById('editorStatus').style.color = 'var(--cyber-pink)';
+  }
+}
+
+function reloadFile() {
+  if (currentFilePath) {
+    fileModified = false;
+    loadFile(currentFilePath);
+  }
+}
+
+async function hotReloadConfig() {
+  const status = document.getElementById('reloadStatus');
+  status.textContent = 'Reloading...';
+  status.style.color = 'var(--cyber-yellow)';
+
+  try {
+    const response = await fetch('/api/files/config/reload', { method: 'POST' });
+    const data = await response.json();
+
+    if (response.ok) {
+      status.textContent = 'Config reloaded successfully!';
+      status.style.color = 'var(--cyber-green)';
+    } else {
+      status.textContent = 'Error: ' + (data.detail || 'Reload failed');
+      status.style.color = 'var(--cyber-pink)';
+    }
+  } catch (err) {
+    status.textContent = 'Error: ' + err.message;
+    status.style.color = 'var(--cyber-pink)';
+  }
+
+  setTimeout(() => { status.textContent = ''; }, 5000);
+}
+
+// Track file modifications
+document.getElementById('fileEditor').addEventListener('input', function() {
+  fileModified = true;
+  document.getElementById('editorStatus').textContent = 'Modified (unsaved)';
+});
+
+/* ============ RESEARCH & ESM ============ */
+let esmQuestions = [];
+let esmStartTime = null;
+
+async function loadResearch() {
+  await Promise.all([
+    loadESMConfig(),
+    loadParticipants(),
+    loadESMResponses()
+  ]);
+}
+
+async function loadESMConfig() {
+  const config = await api('/api/research/esm/config');
+  if (config) {
+    document.getElementById('esmStatus').textContent = config.enabled ? 'ACTIVE' : 'PAUSED';
+    document.getElementById('esmStatus').style.color = config.enabled ? 'var(--cyber-green)' : 'var(--cyber-yellow)';
+    document.getElementById('esmInterval').value = config.interval_hours || 4;
+    if (config.next_trigger) {
+      const next = new Date(config.next_trigger);
+      document.getElementById('esmNextTrigger').textContent = next.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+    }
+    esmQuestions = config.questions || [];
+  }
+}
+
+async function loadParticipants() {
+  const participants = await api('/api/research/participants');
+  const list = document.getElementById('participantList');
+
+  if (participants && participants.length > 0) {
+    list.innerHTML = participants.map(p => {
+      const statusClass = 'status-' + p.status;
+      return '<div class="participant-item">' +
+        '<span class="participant-name">' + p.name + ' (' + p.id + ')</span>' +
+        '<span class="participant-status ' + statusClass + '">' + p.status.toUpperCase() + '</span>' +
+      '</div>';
+    }).join('');
+  } else {
+    list.innerHTML = '<div class="empty" style="padding:16px">NO PARTICIPANTS</div>';
+  }
+}
+
+async function loadESMResponses() {
+  const responses = await api('/api/research/esm/responses?limit=50');
+  const list = document.getElementById('esmResponseList');
+
+  if (responses && responses.length > 0) {
+    list.innerHTML = responses.reverse().map(r => {
+      const time = r.timestamp ? new Date(r.timestamp).toLocaleString() : '---';
+      const preview = r.responses.current_activity || r.responses.notes || '(no text)';
+      return '<div class="esm-response-item">' +
+        '<div class="esm-response-header">' +
+          '<span class="esm-response-time">' + time + '</span>' +
+          '<span class="esm-response-participant">' + r.participant_id + '</span>' +
+        '</div>' +
+        '<div class="esm-response-preview">' + preview.substring(0, 100).replace(/</g, '&lt;') + '</div>' +
+      '</div>';
+    }).join('');
+  } else {
+    list.innerHTML = '<div class="empty" style="padding:16px">NO RESPONSES YET</div>';
+  }
+}
+
+async function addParticipant() {
+  const name = document.getElementById('newParticipantName').value.trim();
+  if (!name) {
+    alert('Please enter a participant name');
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/research/participants', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name })
+    });
+
+    if (response.ok) {
+      document.getElementById('newParticipantName').value = '';
+      loadParticipants();
+    } else {
+      const data = await response.json();
+      alert('Error: ' + (data.detail || 'Failed to add participant'));
+    }
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
+}
+
+async function triggerESM() {
+  // Load questions if not already loaded
+  if (esmQuestions.length === 0) {
+    const questions = await api('/api/research/esm/questions');
+    esmQuestions = questions || [];
+  }
+
+  // Build popup content
+  const content = document.getElementById('esmContent');
+  content.innerHTML = esmQuestions.map(q => {
+    let input = '';
+    const required = q.required ? '<span class="required">*</span>' : '';
+
+    if (q.type === 'text') {
+      input = '<textarea id="esm_' + q.id + '" placeholder="' + (q.placeholder || '') + '"></textarea>';
+    } else if (q.type === 'slider') {
+      input = '<div class="esm-slider">';
+      for (let i = q.min; i <= q.max; i++) {
+        const label = q.labels ? q.labels[i - q.min] : i;
+        input += '<label><input type="radio" name="esm_' + q.id + '" value="' + i + '"> ' + label + '</label>';
+      }
+      input += '</div>';
+    } else if (q.type === 'radio') {
+      input = '<div class="esm-radio">';
+      q.options.forEach(opt => {
+        input += '<label><input type="radio" name="esm_' + q.id + '" value="' + opt.value + '"> ' + opt.label + '</label>';
+      });
+      input += '</div>';
+    }
+
+    return '<div class="esm-question">' +
+      '<label>' + q.question + required + '</label>' +
+      input +
+    '</div>';
+  }).join('');
+
+  // Show popup
+  document.getElementById('esmPopup').style.display = 'flex';
+  esmStartTime = Date.now();
+
+  // Also trigger backend
+  fetch('/api/research/esm/trigger', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify('default')
+  });
+}
+
+function closeESM() {
+  document.getElementById('esmPopup').style.display = 'none';
+}
+
+function snoozeESM() {
+  closeESM();
+  // Could implement a snooze timer here
+  setTimeout(() => triggerESM(), 15 * 60 * 1000); // 15 minutes
+}
+
+async function submitESM() {
+  const responses = {};
+
+  esmQuestions.forEach(q => {
+    if (q.type === 'text') {
+      const el = document.getElementById('esm_' + q.id);
+      if (el) responses[q.id] = el.value;
+    } else if (q.type === 'slider' || q.type === 'radio') {
+      const selected = document.querySelector('input[name="esm_' + q.id + '"]:checked');
+      if (selected) responses[q.id] = selected.value;
+    }
+  });
+
+  // Validate required fields
+  for (const q of esmQuestions) {
+    if (q.required && !responses[q.id]) {
+      alert('Please answer: ' + q.question);
+      return;
+    }
+  }
+
+  const duration = esmStartTime ? (Date.now() - esmStartTime) / 1000 : 0;
+
+  try {
+    const response = await fetch('/api/research/esm/response', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        participant_id: 'default',
+        responses: responses,
+        context: {},
+        duration_seconds: duration
+      })
+    });
+
+    if (response.ok) {
+      closeESM();
+      loadESMResponses();
+    } else {
+      const data = await response.json();
+      alert('Error: ' + (data.detail || 'Failed to submit'));
+    }
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
+}
+
+async function toggleESM() {
+  const config = await api('/api/research/esm/config');
+  const newEnabled = !(config && config.enabled);
+
+  try {
+    await fetch('/api/research/esm/config', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        enabled: newEnabled,
+        interval_hours: parseInt(document.getElementById('esmInterval').value),
+        questions: esmQuestions
+      })
+    });
+    loadESMConfig();
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
+}
+
+async function exportData() {
+  const options = {
+    anonymize_ids: document.getElementById('exportAnonymize').checked,
+    remove_paths: document.getElementById('exportRemovePaths').checked,
+    include_raw_logs: document.getElementById('exportIncludeLogs').checked,
+    format: document.getElementById('exportFormat').value
+  };
+
+  const status = document.getElementById('exportStatus');
+  status.textContent = 'Exporting...';
+
+  try {
+    const response = await fetch('/api/research/export', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(options)
+    });
+    const data = await response.json();
+
+    if (response.ok) {
+      status.textContent = 'Export complete! File: ' + data.export_path +
+        ' (' + data.records_count.participants + ' participants, ' +
+        data.records_count.esm_responses + ' responses)';
+      status.style.color = 'var(--cyber-green)';
+    } else {
+      status.textContent = 'Error: ' + (data.detail || 'Export failed');
+      status.style.color = 'var(--cyber-pink)';
+    }
+  } catch (err) {
+    status.textContent = 'Error: ' + err.message;
+    status.style.color = 'var(--cyber-pink)';
+  }
+}
+
+/* ============ INIT ON TAB SWITCH ============ */
+const originalSwitchTab = switchTab;
+switchTab = function(tab) {
+  originalSwitchTab(tab);
+  if (tab === 'files') loadFileCategory('all', document.querySelector('.file-cat-btn'));
+  if (tab === 'research') loadResearch();
+  if (tab === 'experiments') loadExperimentConfigs();
+};
+
+// Initial load
+loadExperimentConfigs();
+</script>
+</body>
+</html>

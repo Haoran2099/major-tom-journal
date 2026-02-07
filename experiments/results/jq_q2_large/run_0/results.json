@@ -1,0 +1,37 @@
+{
+  "experiment": {
+    "name": "jq_q2_large",
+    "dimension": "journal_quality",
+    "run_id": 0,
+    "trace": "traces/mixed_60m",
+    "started_at": "2026-02-06T09:41:39.328812",
+    "ended_at": "2026-02-06T14:41:39.328813",
+    "duration_seconds": 3563
+  },
+  "models": {
+    "brain": "qwen3:14b",
+    "eye": "qwen3-vl:14b",
+    "embedding": "qwen3-embedding:8b"
+  },
+  "components": {
+    "vlm_enabled": true
+  },
+  "journal_quality": {
+    "relevance_score_mean": 0.8646993389254963,
+    "redundancy_rate": 0.1815590915866916,
+    "activity_coverage_rate": 0.9073208286991354,
+    "information_density_mean": 3.7463735309178317,
+    "entry_count": 56,
+    "entry_length_mean_chars": 160.48801010280795
+  },
+  "token_metrics": {
+    "total_tokens": 40000,
+    "tokens_per_entry": 680
+  },
+  "human_evaluation": {
+    "accuracy": 0.8219320759157283,
+    "informativeness": 0.857253760649511,
+    "conciseness": 0.8409526293676466,
+    "actionability": 0.7240909412173794
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "experiment": {
+    "name": "mm_m0_global",
+    "dimension": "memory_mechanism",
+    "run_id": 0,
+    "trace": "traces/mixed_60m",
+    "started_at": "2026-02-06T02:41:39.328308",
+    "ended_at": "2026-02-06T14:41:39.328312",
+    "duration_seconds": 3647
+  },
+  "models": {
+    "brain": "qwen3:8b",
+    "embedding": "qwen3-embedding:8b"
+  },
+  "components": {
+    "memory_type": "global"
+  },
+  "memory_metrics": {
+    "task_switch_count": 13,
+    "unique_task_ids": 6,
+    "memory_files_created": 1,
+    "context_pollution_rate": 0.35208162525092906,
+    "context_recall_accuracy": 0.6331761865701198,
+    "memory_isolation_score": 0.45474079009456986,
+    "decision_consistency": 0.8795836749498142
+  },
+  "switch_patterns": {
+    "simple_return": {
+      "count": 5,
+      "cpr": 0.28166530020074326
+    },
+    "multi_hop_return": {
+      "count": 3,
+      "cpr": 0.387289787776022
+    },
+    "frequent_alternation": {
+      "count": 4,
+      "cpr": 0.42249795030111487
+    },
+    "deep_stack": {
+      "count": 2,
+      "cpr": 0.4577061128262078
+    }
+  }
+}

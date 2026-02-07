@@ -1,0 +1,37 @@
+{
+  "experiment": {
+    "name": "jq_q3_gemma",
+    "dimension": "journal_quality",
+    "run_id": 0,
+    "trace": "traces/mixed_60m",
+    "started_at": "2026-02-06T12:41:39.328816",
+    "ended_at": "2026-02-06T14:41:39.328818",
+    "duration_seconds": 3528
+  },
+  "models": {
+    "brain": "gemma3:12b",
+    "eye": "gemma3-vl:12b",
+    "embedding": "qwen3-embedding:8b"
+  },
+  "components": {
+    "vlm_enabled": true
+  },
+  "journal_quality": {
+    "relevance_score_mean": 0.7991704791608956,
+    "redundancy_rate": 0.172399280068898,
+    "activity_coverage_rate": 0.8718288728097796,
+    "information_density_mean": 3.7685636122927897,
+    "entry_count": 53,
+    "entry_length_mean_chars": 158.63238573013075
+  },
+  "token_metrics": {
+    "total_tokens": 38500,
+    "tokens_per_entry": 668
+  },
+  "human_evaluation": {
+    "accuracy": 0.8696121380240096,
+    "informativeness": 0.7819114345099136,
+    "conciseness": 0.8961078377613619,
+    "actionability": 0.7740779702234498
+  }
+}

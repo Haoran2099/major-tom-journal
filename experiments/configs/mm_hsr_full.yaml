@@ -1,0 +1,49 @@
+# ACM MM Our Method: HSR (Hierarchical Semantic Routing)
+# Three-layer adaptive routing for efficient activity summarization
+# Layer 1: Semantic Gating | Layer 2: Decision Cache | Layer 3: LLM Analysis
+
+experiment:
+  name: "mm_hsr_full"
+  dimension: "acmmm_ours"
+  description: "HSR: Hierarchical Semantic Routing (full system)"
+  repeat: 3
+  seed: 42
+
+method:
+  type: "hsr"
+  semantic_threshold: 0.30
+  cache_ttl: 300
+  history_size: 10
+
+models:
+  brain: "qwen3:8b"
+  eye: "qwen3-vl:8b"
+  embedding: "qwen3-embedding:8b"
+
+# Full HSR configuration
+components:
+  semantic_gating:
+    enabled: true
+    threshold: 0.30
+    history_size: 10
+  decision_cache:
+    enabled: true
+    ttl_seconds: 300
+    max_size: 1000
+  vlm:
+    enabled: true
+    cooldown: 60
+    diff_threshold: 0.9
+  adaptive_sampling:
+    enabled: true
+    min_interval: 10
+    max_interval: 300
+
+llm_options:
+  temperature: 0.1
+  num_ctx: 4096
+  num_predict: 200
+
+metrics:
+  collect_all: true
+  export_format: "both"

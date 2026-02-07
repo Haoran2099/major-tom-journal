@@ -1,0 +1,38 @@
+# ACM MM Baseline B2: Fixed Interval Sampling
+# Sample at fixed time intervals (every 5 minutes)
+# Simple but may miss important short activities
+
+experiment:
+  name: "mm_b2_fixed_sampling"
+  dimension: "acmmm_baseline"
+  description: "Fixed sampling baseline: sample every 5 minutes"
+  repeat: 3
+  seed: 42
+
+method:
+  type: "fixed_sampling"
+  interval_seconds: 300  # 5 minutes
+
+models:
+  brain: "qwen3:8b"
+  eye: null
+  embedding: null
+
+components:
+  semantic_gating:
+    enabled: false
+  decision_cache:
+    enabled: false
+  vlm:
+    enabled: false
+  adaptive_sampling:
+    enabled: false
+
+llm_options:
+  temperature: 0.1
+  num_ctx: 4096
+  num_predict: 200
+
+metrics:
+  collect_all: true
+  export_format: "both"

@@ -1,0 +1,59 @@
+{
+  "experiment": {
+    "name": "te_c1_cache_only",
+    "dimension": "token_efficiency",
+    "run_id": 0,
+    "trace": "traces/mixed_60m",
+    "started_at": "2026-02-06T00:41:39.327347",
+    "ended_at": "2026-02-06T14:41:39.327350",
+    "duration_seconds": 3508,
+    "config_hash": "sha256:6ecaa0075a69fc17"
+  },
+  "models": {
+    "brain": "qwen3:8b",
+    "eye": "qwen3-vl:8b",
+    "embedding": "qwen3-embedding:8b"
+  },
+  "components": {
+    "semantic_gating": false,
+    "decision_cache": true,
+    "vlm": true,
+    "adaptive_sampling": false
+  },
+  "token_metrics": {
+    "total_tokens": 38543,
+    "brain_prompt_tokens": 23896,
+    "brain_completion_tokens": 4625,
+    "eye_prompt_tokens": 6937,
+    "eye_completion_tokens": 1541,
+    "embedding_tokens": 1541,
+    "tokens_per_decision_mean": 214.12777777777777
+  },
+  "routing_metrics": {
+    "total_decisions": 180,
+    "snapshot_count": 64,
+    "skip_count": 115,
+    "semantic_hit_count": 0,
+    "semantic_hit_rate": 0,
+    "cache_hit_count": 37,
+    "cache_hit_rate": 0.21,
+    "llm_brain_call_count": 142,
+    "llm_brain_call_rate": 0.79,
+    "vlm_call_count": 50,
+    "vlm_effective_rate": 0.7643477553305177
+  },
+  "latency_metrics": {
+    "decision_avg_ms": 79.37275949607206,
+    "decision_p50_ms": 12.021421152413449,
+    "decision_p95_ms": 1778.2612233474117,
+    "semantic_avg_ms": 0,
+    "brain_avg_ms": 1105.3071939367728,
+    "vlm_avg_ms": 3379.5350602746594
+  },
+  "efficiency": {
+    "token_savings_vs_naive": 0.14347755330517664,
+    "semantic_layer_contribution": 0,
+    "cache_layer_contribution": 0.16,
+    "adaptive_contribution": 0
+  }
+}

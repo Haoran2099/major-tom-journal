@@ -1,0 +1,39 @@
+experiment:
+  name: "jq_q0_small"
+  dimension: "journal_quality"
+  description: "Small models: qwen3:4b + qwen3-vl:4b"
+  repeat: 3
+  seed: 42
+
+models:
+  brain: "qwen3:4b"
+  eye: "qwen3-vl:4b"
+  embedding: "nomic-embed-text"
+
+components:
+  semantic_gating:
+    enabled: true
+    threshold: 0.30
+  decision_cache:
+    enabled: true
+  vlm:
+    enabled: true
+    cooldown: 60
+    diff_threshold: 0.9
+  context_routing:
+    enabled: true
+    method: "keyword"
+  adaptive_sampling:
+    enabled: true
+  pattern_learning:
+    enabled: true
+
+llm_options:
+  temperature: 0.1
+  num_ctx: 4096
+  num_predict: 500
+
+metrics:
+  collect_all: true
+  export_format: "both"
+  export_on_complete: true

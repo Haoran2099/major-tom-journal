@@ -1,0 +1,14 @@
+[
+  {
+    "id": "esm_20260206_192702_8639ea",
+    "participant_id": "test_user",
+    "timestamp": "2026-02-06T19:27:02.713122",
+    "responses": {
+      "current_activity": "Testing the dashboard",
+      "focus_level": "4",
+      "system_accuracy": "accurate"
+    },
+    "context": {},
+    "duration_seconds": 30.5
+  }
+]

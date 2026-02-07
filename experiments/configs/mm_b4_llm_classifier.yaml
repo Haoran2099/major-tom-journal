@@ -1,0 +1,37 @@
+# ACM MM Baseline B4: LLM as Binary Classifier
+# Use LLM to decide whether to record
+# Two LLM calls per snapshot: classify + summarize
+
+experiment:
+  name: "mm_b4_llm_classifier"
+  dimension: "acmmm_baseline"
+  description: "LLM classifier baseline: use LLM for binary decision"
+  repeat: 3
+  seed: 42
+
+method:
+  type: "llm_classifier"
+
+models:
+  brain: "qwen3:8b"
+  eye: null
+  embedding: null
+
+components:
+  semantic_gating:
+    enabled: false
+  decision_cache:
+    enabled: false
+  vlm:
+    enabled: false
+  adaptive_sampling:
+    enabled: false
+
+llm_options:
+  temperature: 0.1
+  num_ctx: 4096
+  num_predict: 200
+
+metrics:
+  collect_all: true
+  export_format: "both"
