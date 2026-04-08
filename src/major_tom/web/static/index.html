@@ -1,0 +1,3658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAJOR TOM · Mission Control</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  /* WIN98 System Colors */
+  --win-bg:#008080;
+  --win-desktop:#008080;
+  --win-titlebar:#000080;
+  --win-titlebar-inactive:#808080;
+  --win-window:#c0c0c0;
+  --win-button-face:#c0c0c0;
+  --win-button-light:#ffffff;
+  --win-button-shadow:#808080;
+  --win-button-dark:#000000;
+  --win-text:#000000;
+  --win-highlight:#000080;
+  --win-highlight-text:#ffffff;
+
+  /* Extended Palette - Cyber/Retro */
+  --cyber-purple:#6b5b95;
+  --cyber-pink:#ff6b9d;
+  --cyber-cyan:#00ffff;
+  --cyber-green:#00ff00;
+  --cyber-yellow:#ffff00;
+
+  /* Fonts */
+  --font-pixel:'Press Start 2P', monospace;
+  --font-terminal:'VT323', monospace;
+  --font-mono:'IBM Plex Mono', monospace;
+}
+
+html{font-size:16px}
+body{
+  background:var(--win-desktop);
+  color:var(--win-text);
+  font-family:var(--font-mono);
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
+}
+
+/* =====================================================
+   SHOOTING STARS BACKGROUND
+   ===================================================== */
+.stars-container{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  overflow:hidden;
+  z-index:0;
+  pointer-events:none;
+}
+
+.shooting-star{
+  position:absolute;
+  width:100px;
+  height:2px;
+  background:linear-gradient(90deg, var(--cyber-cyan), transparent);
+  border-radius:50%;
+  filter:drop-shadow(0 0 6px var(--cyber-cyan));
+  animation:shoot linear infinite;
+  opacity:0;
+}
+
+@keyframes shoot{
+  0%{
+    transform:translateX(0) translateY(0) rotate(-45deg);
+    opacity:1;
+  }
+  70%{
+    opacity:1;
+  }
+  100%{
+    transform:translateX(-1500px) translateY(1500px) rotate(-45deg);
+    opacity:0;
+  }
+}
+
+/* Generate multiple shooting stars with varied positions and delays */
+.shooting-star:nth-child(1){top:10%;left:100%;animation-duration:3s;animation-delay:0s;width:150px}
+.shooting-star:nth-child(2){top:20%;left:100%;animation-duration:2.5s;animation-delay:0.5s;width:120px;background:linear-gradient(90deg, var(--cyber-pink), transparent)}
+.shooting-star:nth-child(3){top:5%;left:80%;animation-duration:4s;animation-delay:1s;width:100px}
+.shooting-star:nth-child(4){top:35%;left:100%;animation-duration:3.5s;animation-delay:2s;width:180px;background:linear-gradient(90deg, var(--cyber-yellow), transparent)}
+.shooting-star:nth-child(5){top:15%;left:90%;animation-duration:2.8s;animation-delay:3s;width:130px;background:linear-gradient(90deg, var(--cyber-green), transparent)}
+.shooting-star:nth-child(6){top:45%;left:100%;animation-duration:3.2s;animation-delay:1.5s;width:110px}
+.shooting-star:nth-child(7){top:8%;left:70%;animation-duration:4.5s;animation-delay:2.5s;width:160px;background:linear-gradient(90deg, var(--cyber-pink), transparent)}
+.shooting-star:nth-child(8){top:25%;left:95%;animation-duration:3s;animation-delay:4s;width:140px}
+.shooting-star:nth-child(9){top:50%;left:85%;animation-duration:2.6s;animation-delay:0.8s;width:90px;background:linear-gradient(90deg, var(--cyber-yellow), transparent)}
+.shooting-star:nth-child(10){top:2%;left:100%;animation-duration:5s;animation-delay:3.5s;width:200px}
+
+/* Star field background */
+.star-field{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  z-index:0;
+  background:
+    radial-gradient(1px 1px at 20px 30px, white, transparent),
+    radial-gradient(1px 1px at 40px 70px, rgba(255,255,255,.8), transparent),
+    radial-gradient(1px 1px at 50px 160px, rgba(255,255,255,.6), transparent),
+    radial-gradient(1px 1px at 90px 40px, white, transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,.7), transparent),
+    radial-gradient(1px 1px at 160px 120px, white, transparent),
+    radial-gradient(2px 2px at 200px 50px, var(--cyber-cyan), transparent),
+    radial-gradient(1px 1px at 250px 180px, white, transparent),
+    radial-gradient(1px 1px at 300px 100px, rgba(255,255,255,.5), transparent),
+    radial-gradient(2px 2px at 350px 200px, var(--cyber-pink), transparent);
+  background-size:400px 300px;
+  animation:twinkle 4s ease-in-out infinite;
+}
+@keyframes twinkle{
+  0%,100%{opacity:.6}
+  50%{opacity:.9}
+}
+
+/* =====================================================
+   DITHER SHADER OVERLAY
+   ===================================================== */
+.dither-overlay{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  z-index:1;
+  pointer-events:none;
+  opacity:.15;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='1' height='1' fill='%23000'/%3E%3Crect x='2' y='0' width='1' height='1' fill='%23000'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%23000'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%23000'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%23000'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23000'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%23000'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%23000'/%3E%3C/svg%3E");
+  background-size:4px 4px;
+  mix-blend-mode:overlay;
+}
+
+/* Scanline effect */
+.scanlines{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  z-index:2;
+  pointer-events:none;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(0,0,0,.03) 2px,
+    rgba(0,0,0,.03) 4px
+  );
+}
+
+/* =====================================================
+   WIN98 WINDOW STYLES
+   ===================================================== */
+.win-window{
+  background:var(--win-window);
+  border:2px solid;
+  border-color:var(--win-button-light) var(--win-button-dark) var(--win-button-dark) var(--win-button-light);
+  box-shadow:
+    inset 1px 1px 0 var(--win-button-face),
+    inset -1px -1px 0 var(--win-button-shadow),
+    4px 4px 0 rgba(0,0,0,.3);
+  position:relative;
+  z-index:10;
+}
+
+.win-titlebar{
+  background:linear-gradient(90deg, var(--win-titlebar), var(--cyber-purple));
+  color:white;
+  padding:4px 8px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-family:var(--font-mono);
+  font-size:.8rem;
+  font-weight:600;
+  letter-spacing:.02em;
+  user-select:none;
+}
+.win-titlebar-text{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.win-titlebar-icon{
+  width:16px;height:16px;
+  background:var(--cyber-cyan);
+  border:1px solid var(--win-button-dark);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:10px;
+}
+.win-titlebar-buttons{
+  display:flex;
+  gap:2px;
+}
+.win-btn{
+  background:var(--win-button-face);
+  border:2px solid;
+  border-color:var(--win-button-light) var(--win-button-dark) var(--win-button-dark) var(--win-button-light);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-family:var(--font-mono);
+  font-size:.85rem;
+  cursor:pointer;
+  padding:6px 12px;
+  white-space:nowrap;
+  min-width:fit-content;
+}
+.win-btn:active{
+  border-color:var(--win-button-dark) var(--win-button-light) var(--win-button-light) var(--win-button-dark);
+}
+.win-btn:hover{
+  background:#d4d4d4;
+}
+/* Small buttons for titlebar */
+.win-titlebar-buttons .win-btn{
+  width:16px;height:14px;
+  padding:0;
+  font-size:10px;
+  min-width:16px;
+}
+
+.win-content{
+  padding:8px;
+  background:var(--win-window);
+}
+
+/* Inset panel (like text areas) */
+.win-inset{
+  background:#fff;
+  border:2px solid;
+  border-color:var(--win-button-shadow) var(--win-button-light) var(--win-button-light) var(--win-button-shadow);
+  padding:4px;
+}
+
+/* Dark screen panel */
+.win-screen{
+  background:#000;
+  border:2px solid;
+  border-color:var(--win-button-shadow) var(--win-button-light) var(--win-button-light) var(--win-button-shadow);
+  color:var(--cyber-cyan);
+  font-family:var(--font-terminal);
+  padding:8px;
+  position:relative;
+  overflow:hidden;
+}
+
+/* CRT glow effect inside screens */
+.win-screen::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;width:100%;height:100%;
+  background:radial-gradient(ellipse at center, rgba(0,255,255,.03), transparent 70%);
+  pointer-events:none;
+}
+
+/* =====================================================
+   COMET CARD EFFECT
+   ===================================================== */
+.comet-card{
+  position:relative;
+  overflow:visible;
+}
+.comet-card::before{
+  content:'';
+  position:absolute;
+  top:-2px;left:-2px;right:-2px;bottom:-2px;
+  background:linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--cyber-cyan) 25%,
+    var(--cyber-pink) 50%,
+    var(--cyber-purple) 75%,
+    transparent 100%
+  );
+  background-size:200% 100%;
+  border-radius:0;
+  z-index:-1;
+  animation:cometGlow 3s linear infinite;
+  opacity:0;
+  transition:opacity .3s;
+}
+.comet-card:hover::before{
+  opacity:1;
+}
+@keyframes cometGlow{
+  0%{background-position:200% 0}
+  100%{background-position:-200% 0}
+}
+
+/* Comet trail particles */
+.comet-card::after{
+  content:'';
+  position:absolute;
+  top:50%;right:-20px;
+  width:40px;height:4px;
+  background:linear-gradient(90deg, var(--cyber-cyan), transparent);
+  transform:translateY(-50%);
+  opacity:0;
+  transition:all .3s;
+  filter:blur(2px);
+}
+.comet-card:hover::after{
+  opacity:.8;
+  right:-40px;
+}
+
+/* =====================================================
+   LAYOUT & COMPONENTS
+   ===================================================== */
+.app-container{
+  position:relative;
+  z-index:5;
+  padding:8px;
+  min-height:100vh;
+}
+
+/* Taskbar */
+.taskbar{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  height:32px;
+  background:var(--win-button-face);
+  border-top:2px solid var(--win-button-light);
+  display:flex;
+  align-items:center;
+  padding:2px 4px;
+  z-index:100;
+  gap:4px;
+}
+.start-button{
+  background:var(--win-button-face);
+  border:2px solid;
+  border-color:var(--win-button-light) var(--win-button-dark) var(--win-button-dark) var(--win-button-light);
+  padding:4px 12px;
+  font-family:var(--font-mono);
+  font-size:.85rem;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-weight:bold;
+}
+.start-button:hover{background:#d4d4d4}
+.start-button:active{
+  border-color:var(--win-button-dark) var(--win-button-light) var(--win-button-light) var(--win-button-dark);
+}
+.start-icon{
+  width:16px;height:16px;
+  background:linear-gradient(135deg, var(--cyber-cyan) 25%, var(--cyber-green) 25%, var(--cyber-green) 50%, var(--cyber-yellow) 50%, var(--cyber-yellow) 75%, var(--cyber-pink) 75%);
+}
+.taskbar-divider{
+  width:2px;height:24px;
+  border-left:1px solid var(--win-button-shadow);
+  border-right:1px solid var(--win-button-light);
+  margin:0 2px;
+}
+.taskbar-tray{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border:2px solid;
+  border-color:var(--win-button-shadow) var(--win-button-light) var(--win-button-light) var(--win-button-shadow);
+  padding:2px 8px;
+  font-family:var(--font-terminal);
+  font-size:1rem;
+}
+.tray-led{
+  width:8px;height:8px;
+  background:var(--cyber-green);
+  border-radius:50%;
+  animation:ledBlink 1s ease-in-out infinite;
+  box-shadow:0 0 4px var(--cyber-green);
+}
+.tray-led.offline{background:var(--cyber-pink);box-shadow:0 0 4px var(--cyber-pink)}
+@keyframes ledBlink{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* Main window */
+.main-window{
+  margin-bottom:40px;
+}
+
+/* Navigation tabs (Win98 style) */
+.nav-tabs{
+  display:flex;
+  padding:0 4px;
+  gap:0;
+}
+.nav-tab{
+  background:var(--win-button-face);
+  border:2px solid;
+  border-color:var(--win-button-light) var(--win-button-dark) var(--win-button-dark) var(--win-button-light);
+  border-bottom:none;
+  padding:8px 16px;
+  font-family:var(--font-mono);
+  font-size:.75rem;
+  font-weight:600;
+  cursor:pointer;
+  position:relative;
+  top:2px;
+  margin-right:-1px;
+  white-space:nowrap;
+}
+.nav-tab:hover{background:#d4d4d4}
+.nav-tab.active{
+  background:var(--win-window);
+  border-bottom:2px solid var(--win-window);
+  z-index:1;
+}
+
+/* Grid system */
+.grid{display:grid;gap:8px}
+.grid-4{grid-template-columns:repeat(4,1fr)}
+.grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-2{grid-template-columns:repeat(2,1fr)}
+.grid-1-2{grid-template-columns:1fr 2fr}
+@media(max-width:1200px){.grid-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:800px){.grid-4,.grid-3,.grid-2,.grid-1-2{grid-template-columns:1fr}}
+
+/* Data readouts */
+.readout{
+  font-family:var(--font-terminal);
+  line-height:1.2;
+}
+.readout-lg{font-size:2.8rem}
+.readout-md{font-size:2rem}
+.readout-sm{font-size:1.4rem}
+.readout-sub{
+  font-family:var(--font-mono);
+  font-size:.75rem;
+  color:var(--cyber-purple);
+  margin-top:4px;
+}
+
+/* Cyber text colors */
+.cyber-cyan{color:var(--cyber-cyan);text-shadow:0 0 10px var(--cyber-cyan)}
+.cyber-pink{color:var(--cyber-pink);text-shadow:0 0 10px var(--cyber-pink)}
+.cyber-green{color:var(--cyber-green);text-shadow:0 0 10px var(--cyber-green)}
+.cyber-yellow{color:var(--cyber-yellow);text-shadow:0 0 10px var(--cyber-yellow)}
+
+/* Progress bars (Win98 style) */
+.win-progress{
+  height:16px;
+  background:#fff;
+  border:2px solid;
+  border-color:var(--win-button-shadow) var(--win-button-light) var(--win-button-light) var(--win-button-shadow);
+  padding:2px;
+}
+.win-progress-bar{
+  height:100%;
+  background:repeating-linear-gradient(
+    90deg,
+    var(--win-titlebar) 0px,
+    var(--win-titlebar) 8px,
+    var(--cyber-purple) 8px,
+    var(--cyber-purple) 10px
+  );
+  transition:width .5s;
+}
+
+/* Status label */
+.status-label{
+  font-family:var(--font-mono);
+  font-size:.75rem;
+  font-weight:600;
+  color:var(--win-text);
+  margin-bottom:4px;
+  letter-spacing:.02em;
+}
+
+/* Timeline */
+.timeline{max-height:280px;overflow-y:auto}
+.timeline-item{
+  display:flex;
+  gap:8px;
+  padding:6px 0;
+  border-bottom:1px dotted var(--cyber-cyan);
+  font-family:var(--font-terminal);
+  font-size:1.1rem;
+}
+.timeline-time{color:var(--cyber-green);min-width:70px}
+.timeline-badge{
+  padding:3px 8px;
+  font-family:var(--font-mono);
+  font-size:.7rem;
+  font-weight:600;
+  border:1px solid;
+  background:#000;
+}
+.badge-snapshot{border-color:var(--cyber-cyan);color:var(--cyber-cyan)}
+.badge-skip{border-color:var(--cyber-yellow);color:var(--cyber-yellow)}
+.badge-switch{border-color:var(--cyber-pink);color:var(--cyber-pink)}
+.badge-idle{border-color:var(--cyber-purple);color:var(--cyber-purple)}
+.timeline-text{color:var(--cyber-cyan);flex:1;opacity:.8}
+
+/* Journal & Memory */
+.sidebar-list{max-height:50vh;overflow-y:auto}
+.list-item{
+  padding:6px 8px;
+  font-family:var(--font-terminal);
+  font-size:1.1rem;
+  cursor:pointer;
+  border-bottom:1px dotted rgba(0,255,255,.2);
+  display:flex;
+  justify-content:space-between;
+  transition:all .15s;
+}
+.list-item:hover{background:rgba(0,255,255,.1);color:var(--cyber-cyan)}
+.list-item.active{background:var(--win-titlebar);color:white}
+.list-count{
+  font-size:.9rem;
+  opacity:.6;
+  border:1px solid currentColor;
+  padding:0 6px;
+}
+
+.content-area{
+  height:60vh;
+  max-height:500px;
+  overflow-y:auto;
+  font-family:var(--font-terminal);
+  font-size:1.15rem;
+  line-height:1.6;
+  white-space:pre-wrap;
+  word-wrap:break-word;
+}
+.content-area h1,.content-area h2,.content-area h3{
+  font-family:var(--font-mono);
+  color:var(--cyber-pink);
+  margin:12px 0 6px;
+  font-size:1rem;
+  font-weight:700;
+  letter-spacing:.02em;
+}
+.content-area code{
+  background:var(--win-titlebar);
+  padding:2px 6px;
+  color:var(--cyber-cyan);
+}
+.content-area blockquote{
+  border-left:3px solid var(--cyber-purple);
+  padding-left:12px;
+  opacity:.8;
+}
+
+/* Search */
+.search-box{display:flex;gap:4px;margin-bottom:8px}
+.search-input{
+  flex:1;
+  background:#000;
+  border:2px solid;
+  border-color:var(--win-button-shadow) var(--win-button-light) var(--win-button-light) var(--win-button-shadow);
+  padding:6px 10px;
+  font-family:var(--font-terminal);
+  font-size:1.1rem;
+  color:var(--cyber-cyan);
+  outline:none;
+}
+.search-input:focus{box-shadow:inset 0 0 10px rgba(0,255,255,.2)}
+.search-input::placeholder{color:rgba(0,255,255,.3)}
+.search-btn{
+  background:var(--win-button-face);
+  border:2px solid;
+  border-color:var(--win-button-light) var(--win-button-dark) var(--win-button-dark) var(--win-button-light);
+  padding:8px 20px;
+  font-family:var(--font-mono);
+  font-size:.85rem;
+  font-weight:600;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.search-btn:hover{background:#d4d4d4}
+.search-btn:active{
+  border-color:var(--win-button-dark) var(--win-button-light) var(--win-button-light) var(--win-button-dark);
+}
+
+/* =====================================================
+   TIMETABLE VIEW
+   ===================================================== */
+.tt-toolbar{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:8px;
+  flex-wrap:wrap;
+}
+.tt-nav{
+  display:flex;
+  align-items:center;
+  gap:2px;
+}
+.tt-nav .win-btn{
+  padding:4px 10px;
+  font-size:.8rem;
+  font-weight:600;
+}
+.tt-week-label{
+  font-family:var(--font-terminal);
+  font-size:1.3rem;
+  color:var(--cyber-cyan);
+  text-shadow:0 0 8px rgba(0,255,255,.4);
+  padding:0 12px;
+  min-width:240px;
+  text-align:center;
+}
+.tt-view-toggle{
+  margin-left:auto;
+  display:flex;
+  gap:2px;
+}
+.tt-view-toggle .win-btn{
+  padding:4px 10px;
+  font-size:.75rem;
+}
+.tt-view-toggle .win-btn.active{
+  background:var(--win-titlebar);
+  color:white;
+  border-color:var(--win-button-dark) var(--win-button-light) var(--win-button-light) var(--win-button-dark);
+}
+
+/* Timetable grid */
+.tt-grid-wrap{
+  background:#000;
+  border:2px solid;
+  border-color:var(--win-button-shadow) var(--win-button-light) var(--win-button-light) var(--win-button-shadow);
+  overflow:auto;
+  max-height:68vh;
+  position:relative;
+}
+.tt-grid{
+  display:grid;
+  grid-template-columns:64px repeat(7,1fr);
+  min-width:700px;
+  position:relative;
+}
+
+/* Day headers */
+.tt-day-header{
+  background:linear-gradient(180deg, var(--win-titlebar), #000040);
+  color:white;
+  font-family:var(--font-mono);
+  font-size:.7rem;
+  font-weight:600;
+  text-align:center;
+  padding:8px 4px;
+  border-bottom:2px solid var(--win-titlebar);
+  border-right:1px solid rgba(0,255,255,.1);
+  position:sticky;
+  top:0;
+  z-index:5;
+  letter-spacing:.04em;
+}
+.tt-day-header.today{
+  background:linear-gradient(180deg, var(--cyber-purple), #2a1f4e);
+  border-bottom-color:var(--cyber-pink);
+}
+.tt-day-header .tt-day-name{
+  display:block;
+  font-size:.65rem;
+  opacity:.7;
+  margin-bottom:2px;
+}
+.tt-day-header .tt-day-date{
+  display:block;
+  font-family:var(--font-terminal);
+  font-size:1.1rem;
+  color:var(--cyber-cyan);
+}
+.tt-day-header.today .tt-day-date{
+  color:var(--cyber-pink);
+  text-shadow:0 0 6px var(--cyber-pink);
+}
+.tt-corner{
+  background:#000;
+  border-bottom:2px solid var(--win-titlebar);
+  border-right:1px solid rgba(0,255,255,.1);
+  position:sticky;
+  top:0;
+  z-index:6;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:var(--font-mono);
+  font-size:.6rem;
+  color:rgba(0,255,255,.4);
+}
+
+/* Time labels */
+.tt-time{
+  background:#000;
+  font-family:var(--font-terminal);
+  font-size:.95rem;
+  color:var(--cyber-green);
+  text-shadow:0 0 4px rgba(0,255,0,.3);
+  padding:4px 6px 4px 4px;
+  text-align:right;
+  border-right:1px solid rgba(0,255,255,.15);
+  border-bottom:1px solid rgba(0,255,255,.06);
+  position:sticky;
+  left:0;
+  z-index:3;
+  min-height:36px;
+  box-sizing:border-box;
+}
+
+/* Day cells */
+.tt-cell{
+  border-right:1px solid rgba(0,255,255,.06);
+  border-bottom:1px solid rgba(0,255,255,.06);
+  min-height:36px;
+  padding:2px;
+  background:#000;
+  transition:background .15s;
+  display:flex;
+  flex-direction:column;
+  gap:1px;
+}
+.tt-cell:hover{
+  background:rgba(0,255,255,.03);
+}
+.tt-cell.tt-cell-even{
+  background:rgba(255,255,255,.01);
+}
+
+/* Entry blocks — flow layout, stacked vertically */
+.tt-entry{
+  border-radius:2px;
+  padding:1px 4px;
+  font-family:var(--font-terminal);
+  font-size:.85rem;
+  line-height:1.2;
+  overflow:hidden;
+  cursor:pointer;
+  border:1px solid;
+  transition:box-shadow .15s;
+  display:flex;
+  align-items:center;
+  gap:4px;
+  flex-shrink:0;
+}
+.tt-entry:hover{
+  box-shadow:0 0 10px var(--entry-glow, rgba(0,255,255,.5));
+  z-index:4;
+  position:relative;
+}
+.tt-entry .tt-entry-time{
+  font-size:.7rem;
+  opacity:.7;
+  flex-shrink:0;
+}
+.tt-entry .tt-entry-label{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-weight:500;
+  flex:1;
+  min-width:0;
+}
+
+/* "+N more" expand button */
+.tt-more-btn{
+  font-family:var(--font-mono);
+  font-size:.65rem;
+  font-weight:600;
+  color:var(--cyber-cyan);
+  text-align:center;
+  padding:2px 4px;
+  cursor:pointer;
+  border:1px dashed rgba(0,255,255,.3);
+  border-radius:2px;
+  background:rgba(0,255,255,.05);
+  transition:background .15s, border-color .15s;
+  flex-shrink:0;
+}
+.tt-more-btn:hover{
+  background:rgba(0,255,255,.12);
+  border-color:var(--cyber-cyan);
+}
+/* Hidden entries revealed on expand */
+.tt-cell .tt-entry.tt-hidden{
+  display:none;
+}
+.tt-cell.tt-expanded .tt-entry.tt-hidden{
+  display:flex;
+}
+.tt-cell.tt-expanded .tt-more-btn{
+  border-color:var(--cyber-pink);
+  color:var(--cyber-pink);
+  background:rgba(255,107,157,.08);
+}
+
+/* Per-app color palette (12 colors) */
+.tt-color-0{background:rgba(255,107,157,.22);border-color:#ff6b9d;color:#ff6b9d}
+.tt-color-0:hover{box-shadow:0 0 10px rgba(255,107,157,.5)}
+.tt-color-1{background:rgba(0,255,255,.18);border-color:#00ffff;color:#00ffff}
+.tt-color-1:hover{box-shadow:0 0 10px rgba(0,255,255,.5)}
+.tt-color-2{background:rgba(0,255,0,.15);border-color:#00ff00;color:#00ff00}
+.tt-color-2:hover{box-shadow:0 0 10px rgba(0,255,0,.4)}
+.tt-color-3{background:rgba(255,255,0,.15);border-color:#ffff00;color:#ffff00}
+.tt-color-3:hover{box-shadow:0 0 10px rgba(255,255,0,.5)}
+.tt-color-4{background:rgba(107,91,149,.28);border-color:#9b8ec4;color:#b8aadd}
+.tt-color-4:hover{box-shadow:0 0 10px rgba(107,91,149,.5)}
+.tt-color-5{background:rgba(255,159,67,.2);border-color:#ff9f43;color:#ff9f43}
+.tt-color-5:hover{box-shadow:0 0 10px rgba(255,159,67,.5)}
+.tt-color-6{background:rgba(72,219,251,.18);border-color:#48dbfb;color:#48dbfb}
+.tt-color-6:hover{box-shadow:0 0 10px rgba(72,219,251,.5)}
+.tt-color-7{background:rgba(255,71,87,.2);border-color:#ff4757;color:#ff4757}
+.tt-color-7:hover{box-shadow:0 0 10px rgba(255,71,87,.5)}
+.tt-color-8{background:rgba(46,213,115,.18);border-color:#2ed573;color:#2ed573}
+.tt-color-8:hover{box-shadow:0 0 10px rgba(46,213,115,.5)}
+.tt-color-9{background:rgba(236,204,104,.18);border-color:#eccc68;color:#eccc68}
+.tt-color-9:hover{box-shadow:0 0 10px rgba(236,204,104,.5)}
+.tt-color-10{background:rgba(255,107,214,.2);border-color:#ff6bd6;color:#ff6bd6}
+.tt-color-10:hover{box-shadow:0 0 10px rgba(255,107,214,.5)}
+.tt-color-11{background:rgba(123,237,159,.18);border-color:#7bed9f;color:#7bed9f}
+.tt-color-11:hover{box-shadow:0 0 10px rgba(123,237,159,.5)}
+
+/* Legend */
+.tt-legend{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  padding:6px 0;
+}
+.tt-legend-item{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  font-family:var(--font-mono);
+  font-size:.65rem;
+  font-weight:600;
+  color:rgba(255,255,255,.6);
+}
+.tt-legend-dot{
+  width:10px;height:10px;
+  border:1px solid;
+  border-radius:1px;
+}
+
+/* Detail popup */
+.tt-detail-overlay{
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,.75);
+  z-index:200;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  animation:fadeIn .2s ease;
+}
+.tt-detail{
+  width:480px;
+  max-width:92%;
+  max-height:70vh;
+}
+.tt-detail .win-screen{
+  max-height:50vh;
+  overflow-y:auto;
+}
+.tt-detail-type{
+  display:inline-block;
+  font-family:var(--font-mono);
+  font-size:.7rem;
+  font-weight:600;
+  padding:3px 8px;
+  border:1px solid;
+  margin-bottom:8px;
+}
+.tt-detail-title{
+  font-family:var(--font-terminal);
+  font-size:1.4rem;
+  color:var(--cyber-cyan);
+  margin-bottom:4px;
+}
+.tt-detail-meta{
+  font-family:var(--font-terminal);
+  font-size:.95rem;
+  color:var(--cyber-green);
+  opacity:.7;
+  margin-bottom:12px;
+}
+.tt-detail-preview{
+  font-family:var(--font-terminal);
+  font-size:1.05rem;
+  color:rgba(0,255,255,.8);
+  line-height:1.5;
+  white-space:pre-wrap;
+  word-wrap:break-word;
+}
+
+/* Timetable stats strip */
+.tt-stats{
+  display:flex;
+  gap:16px;
+  padding:4px 0;
+  font-family:var(--font-terminal);
+  font-size:1rem;
+  color:var(--cyber-cyan);
+  opacity:.7;
+}
+.tt-stats span{
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+.tt-stats .tt-stat-num{
+  color:var(--cyber-pink);
+  font-weight:bold;
+}
+
+/* Tables */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{
+  font-family:var(--font-pixel);
+  font-size:.45rem;
+  text-align:left;
+  padding:6px;
+  background:var(--win-titlebar);
+  color:white;
+  border:1px solid var(--win-button-dark);
+}
+.data-table td{
+  font-family:var(--font-terminal);
+  font-size:1rem;
+  padding:6px;
+  border:1px solid var(--win-button-shadow);
+  background:#fff;
+}
+.data-table tr:hover td{background:rgba(0,255,255,.1)}
+.dim-badge{
+  display:inline-block;
+  font-family:var(--font-mono);
+  font-size:.7rem;
+  font-weight:600;
+  padding:3px 8px;
+  border:1px solid;
+}
+
+/* Charts */
+.chart-wrap{position:relative;height:220px;padding:4px}
+.chart-wrap canvas{width:100%!important;height:100%!important}
+
+/* Empty states */
+.empty{
+  text-align:center;
+  padding:40px 16px;
+  font-family:var(--font-terminal);
+  font-size:1.2rem;
+  color:var(--cyber-cyan);
+  opacity:.5;
+}
+.empty .icon{font-size:2rem;margin-bottom:8px;display:block}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:16px;height:16px}
+::-webkit-scrollbar-track{
+  background:var(--win-button-face);
+  border:1px solid var(--win-button-shadow);
+}
+::-webkit-scrollbar-thumb{
+  background:var(--win-button-face);
+  border:2px solid;
+  border-color:var(--win-button-light) var(--win-button-dark) var(--win-button-dark) var(--win-button-light);
+}
+::-webkit-scrollbar-thumb:hover{background:#d4d4d4}
+::-webkit-scrollbar-button{
+  width:16px;height:16px;
+  background:var(--win-button-face);
+  border:2px solid;
+  border-color:var(--win-button-light) var(--win-button-dark) var(--win-button-dark) var(--win-button-light);
+}
+
+/* Tab panels */
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* Section divider */
+.section-header{
+  font-family:var(--font-mono);
+  font-size:.85rem;
+  font-weight:600;
+  color:var(--win-text);
+  padding:4px 0;
+  margin:12px 0 8px;
+  border-bottom:2px solid var(--win-button-shadow);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.section-header::before{
+  content:'>';
+  color:var(--cyber-cyan);
+}
+
+/* =====================================================
+   NEW COMPONENTS FOR FILES/RESEARCH
+   ===================================================== */
+
+/* Form elements */
+.form-group{
+  margin-bottom:12px;
+}
+.form-group label{
+  display:block;
+  font-family:var(--font-mono);
+  font-size:.8rem;
+  font-weight:600;
+  color:var(--cyber-cyan);
+  margin-bottom:6px;
+}
+
+.win-select{
+  background:var(--win-window);
+  border:2px solid;
+  border-color:var(--win-button-shadow) var(--win-button-light) var(--win-button-light) var(--win-button-shadow);
+  padding:4px 8px;
+  font-family:var(--font-terminal);
+  font-size:1rem;
+  color:var(--win-text);
+  cursor:pointer;
+}
+.win-select:focus{outline:2px solid var(--cyber-cyan)}
+
+.win-input{
+  background:#000;
+  border:2px solid;
+  border-color:var(--win-button-shadow) var(--win-button-light) var(--win-button-light) var(--win-button-shadow);
+  padding:6px 10px;
+  font-family:var(--font-terminal);
+  font-size:1.1rem;
+  color:var(--cyber-cyan);
+  outline:none;
+}
+.win-input:focus{box-shadow:inset 0 0 10px rgba(0,255,255,.2)}
+.win-input::placeholder{color:rgba(0,255,255,.3)}
+
+.win-btn-primary{
+  background:var(--win-titlebar);
+  color:white;
+  font-weight:600;
+}
+.win-btn-primary:hover{background:var(--cyber-purple)}
+
+/* Disabled button state */
+.win-btn:disabled{
+  opacity:0.5;
+  cursor:not-allowed;
+}
+.win-btn:disabled:hover{
+  background:var(--win-button-face);
+}
+
+/* Metric boxes */
+.metric-box{
+  background:#000;
+  border:1px solid var(--win-button-shadow);
+  padding:8px;
+  text-align:center;
+}
+.metric-label{
+  font-family:var(--font-mono);
+  font-size:.7rem;
+  font-weight:600;
+  color:var(--cyber-cyan);
+  margin-bottom:4px;
+  letter-spacing:.02em;
+}
+.metric-box .readout{
+  font-family:var(--font-terminal);
+  font-size:1.6rem;
+}
+
+/* Progress bars */
+.progress-bar-wrap{
+  background:#000;
+  border:1px solid var(--win-button-shadow);
+  height:12px;
+  overflow:hidden;
+}
+.progress-bar{
+  height:100%;
+  background:var(--cyber-green);
+  transition:width .3s ease;
+}
+
+/* File editor */
+.file-editor{
+  width:100%;
+  height:350px;
+  background:#000;
+  color:var(--cyber-cyan);
+  font-family:var(--font-terminal);
+  font-size:1.1rem;
+  padding:8px;
+  border:none;
+  resize:vertical;
+  outline:none;
+}
+.file-editor:focus{box-shadow:inset 0 0 20px rgba(0,255,255,.1)}
+.editor-status{
+  padding:4px 8px;
+  font-family:var(--font-terminal);
+  font-size:1rem;
+  background:var(--win-titlebar);
+  color:white;
+}
+
+/* Log list */
+.log-list{
+  background:#000;
+  padding:4px;
+}
+.log-item{
+  padding:6px 8px;
+  font-family:var(--font-terminal);
+  font-size:1rem;
+  color:var(--cyber-cyan);
+  cursor:pointer;
+  border-bottom:1px dotted rgba(0,255,255,.2);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.log-item:hover{background:rgba(0,255,255,.1)}
+.log-item.active{background:var(--win-titlebar);color:white}
+.log-item .file-size{
+  font-size:.9rem;
+  opacity:.6;
+}
+.log-item .file-cat{
+  font-family:var(--font-mono);
+  font-size:.7rem;
+  font-weight:600;
+  padding:3px 8px;
+  border:1px solid;
+  margin-right:8px;
+}
+.cat-configs{border-color:var(--cyber-green);color:var(--cyber-green)}
+.cat-memory{border-color:var(--cyber-pink);color:var(--cyber-pink)}
+.cat-records{border-color:var(--cyber-yellow);color:var(--cyber-yellow)}
+.cat-settings{border-color:var(--cyber-cyan);color:var(--cyber-cyan)}
+
+.file-cat-btn{
+  padding:4px 10px;
+  font-size:.8rem;
+}
+.file-cat-btn.active{
+  background:var(--win-titlebar);
+  color:white;
+}
+
+/* Checkbox label */
+.checkbox-label{
+  font-family:var(--font-terminal);
+  font-size:1rem;
+  color:var(--cyber-cyan);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.checkbox-label input{
+  width:16px;height:16px;
+  cursor:pointer;
+}
+
+/* ESM Popup */
+.esm-popup-overlay{
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,.8);
+  z-index:1000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  animation:fadeIn .3s ease;
+}
+.esm-popup{
+  width:500px;
+  max-width:90%;
+  max-height:80vh;
+  overflow:hidden;
+}
+.esm-content{
+  max-height:50vh;
+  overflow-y:auto;
+  padding:16px;
+}
+.esm-question{
+  margin-bottom:16px;
+}
+.esm-question label{
+  display:block;
+  font-family:var(--font-terminal);
+  font-size:1.1rem;
+  color:var(--cyber-cyan);
+  margin-bottom:8px;
+}
+.esm-question .required{color:var(--cyber-pink)}
+.esm-question input[type="text"],
+.esm-question textarea{
+  width:100%;
+  background:#000;
+  border:2px solid var(--win-button-shadow);
+  padding:8px;
+  font-family:var(--font-terminal);
+  font-size:1rem;
+  color:var(--cyber-cyan);
+}
+.esm-question textarea{height:60px;resize:vertical}
+.esm-slider{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.esm-slider label{
+  flex:1;
+  text-align:center;
+  padding:8px;
+  background:#000;
+  border:1px solid var(--win-button-shadow);
+  cursor:pointer;
+  font-size:.9rem;
+}
+.esm-slider input:checked + label,
+.esm-slider label:has(input:checked){
+  background:var(--win-titlebar);
+  border-color:var(--cyber-cyan);
+}
+.esm-radio{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.esm-radio label{
+  padding:6px 12px;
+  background:#000;
+  border:1px solid var(--win-button-shadow);
+  cursor:pointer;
+  font-size:.9rem;
+}
+.esm-radio input{display:none}
+.esm-radio input:checked + span,
+.esm-radio label:has(input:checked){
+  background:var(--win-titlebar);
+  border-color:var(--cyber-cyan);
+}
+.esm-footer{
+  padding:12px;
+  background:var(--win-window);
+  display:flex;
+  justify-content:space-between;
+}
+
+/* Participant list item */
+.participant-item{
+  padding:8px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px dotted rgba(0,255,255,.2);
+}
+.participant-item:hover{background:rgba(0,255,255,.1)}
+.participant-name{
+  font-family:var(--font-terminal);
+  font-size:1.1rem;
+  color:var(--cyber-cyan);
+}
+.participant-status{
+  font-family:var(--font-mono);
+  font-size:.7rem;
+  font-weight:600;
+  padding:3px 8px;
+  border:1px solid;
+}
+.status-active{border-color:var(--cyber-green);color:var(--cyber-green)}
+.status-paused{border-color:var(--cyber-yellow);color:var(--cyber-yellow)}
+.status-completed{border-color:var(--cyber-cyan);color:var(--cyber-cyan)}
+.status-withdrawn{border-color:var(--cyber-pink);color:var(--cyber-pink)}
+
+/* ESM Response item */
+.esm-response-item{
+  padding:8px;
+  border-bottom:1px dotted rgba(0,255,255,.2);
+}
+.esm-response-item:hover{background:rgba(0,255,255,.05)}
+.esm-response-header{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:4px;
+}
+.esm-response-time{
+  font-family:var(--font-terminal);
+  font-size:.9rem;
+  color:var(--cyber-green);
+}
+.esm-response-participant{
+  font-family:var(--font-mono);
+  font-size:.75rem;
+  font-weight:600;
+  color:var(--cyber-pink);
+}
+.esm-response-preview{
+  font-family:var(--font-terminal);
+  font-size:1rem;
+  color:var(--cyber-cyan);
+  opacity:.8;
+}
+</style>
+</head>
+<body>
+
+<!-- Background Effects -->
+<div class="star-field"></div>
+<div class="stars-container">
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+</div>
+<div class="dither-overlay"></div>
+<div class="scanlines"></div>
+
+<!-- Application -->
+<div class="app-container">
+
+  <!-- Main Window -->
+  <div class="win-window main-window">
+    <div class="win-titlebar">
+      <div class="win-titlebar-text">
+        <div class="win-titlebar-icon">&#9790;</div>
+        <span>MAJOR_TOM.EXE - Mission Control Journal System</span>
+      </div>
+      <div class="win-titlebar-buttons">
+        <div class="win-btn">_</div>
+        <div class="win-btn">&#9633;</div>
+        <div class="win-btn">X</div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div style="background:var(--win-window);padding:4px 4px 0">
+      <div class="nav-tabs">
+        <div class="nav-tab active" onclick="switchTab('dashboard')">DASHBOARD</div>
+        <div class="nav-tab" onclick="switchTab('journal')">JOURNAL</div>
+        <div class="nav-tab" onclick="switchTab('experiments')">EXPERIMENTS</div>
+        <div class="nav-tab" onclick="switchTab('analytics')">ANALYTICS</div>
+        <div class="nav-tab" onclick="switchTab('files')">FILES</div>
+        <div class="nav-tab" onclick="switchTab('research')">RESEARCH</div>
+      </div>
+    </div>
+
+    <div class="win-content">
+
+      <!-- ==================== DASHBOARD ==================== -->
+      <div id="tab-dashboard" class="tab-panel active">
+
+        <!-- Top Stats Row -->
+        <div class="grid grid-4" style="margin-bottom:8px">
+          <div class="win-window comet-card">
+            <div class="win-titlebar">
+              <span>TOTAL_TOKENS</span>
+              <div class="win-btn">?</div>
+            </div>
+            <div class="win-screen" style="text-align:center;padding:12px">
+              <div class="readout readout-lg cyber-cyan" id="totalTokens">0</div>
+              <div class="readout-sub" id="tokenBreakdown">BRAIN:0 EYE:0 EMB:0</div>
+            </div>
+          </div>
+
+          <div class="win-window comet-card">
+            <div class="win-titlebar">
+              <span>TOTAL_DECISIONS</span>
+              <div class="win-btn">?</div>
+            </div>
+            <div class="win-screen" style="text-align:center;padding:12px">
+              <div class="readout readout-lg cyber-pink" id="totalDecisions">0</div>
+              <div class="readout-sub" id="decisionBreakdown">SNAP:0 SKIP:0</div>
+            </div>
+          </div>
+
+          <div class="win-window comet-card">
+            <div class="win-titlebar">
+              <span>SEMANTIC_HIT</span>
+              <div class="win-btn">?</div>
+            </div>
+            <div class="win-screen" style="text-align:center;padding:12px">
+              <div class="readout readout-lg cyber-green" id="semanticRate">0.0%</div>
+              <div class="readout-sub" id="semanticCount">0 HITS</div>
+            </div>
+          </div>
+
+          <div class="win-window comet-card">
+            <div class="win-titlebar">
+              <span>CACHE_HIT</span>
+              <div class="win-btn">?</div>
+            </div>
+            <div class="win-screen" style="text-align:center;padding:12px">
+              <div class="readout readout-lg cyber-yellow" id="cacheRate">0.0%</div>
+              <div class="readout-sub" id="cacheCount">0 HITS</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status & Activity Row -->
+        <div class="grid grid-2" style="margin-bottom:8px">
+          <div class="win-window comet-card">
+            <div class="win-titlebar">
+              <span>SYSTEM_STATUS.DAT</span>
+              <div class="win-btn">?</div>
+            </div>
+            <div class="win-content">
+              <div class="grid grid-2" style="gap:8px">
+                <div>
+                  <div class="status-label">BRAIN_MODEL:</div>
+                  <div class="win-inset" style="font-family:var(--font-terminal);font-size:1rem" id="brainModel">---</div>
+                </div>
+                <div>
+                  <div class="status-label">EYE_MODEL:</div>
+                  <div class="win-inset" style="font-family:var(--font-terminal);font-size:1rem" id="eyeModel">---</div>
+                </div>
+                <div>
+                  <div class="status-label">CURRENT_TASK:</div>
+                  <div class="win-inset" style="font-family:var(--font-terminal);font-size:1rem;color:var(--cyber-pink)" id="currentTask">---</div>
+                </div>
+                <div>
+                  <div class="status-label">UPTIME:</div>
+                  <div class="win-inset" style="font-family:var(--font-terminal);font-size:1rem" id="uptime">---</div>
+                </div>
+              </div>
+              <div style="margin-top:12px">
+                <div class="status-label">ACTIVITY_METER:</div>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <span style="font-family:var(--font-mono);font-size:.75rem;font-weight:600;width:40px">KPM:</span>
+                  <div class="win-progress" style="flex:1"><div class="win-progress-bar" id="kpmBar" style="width:0%"></div></div>
+                  <span style="font-family:var(--font-terminal);font-size:1rem;width:40px" id="kpmVal">0</span>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
+                  <span style="font-family:var(--font-mono);font-size:.75rem;font-weight:600;width:40px">CPM:</span>
+                  <div class="win-progress" style="flex:1"><div class="win-progress-bar" id="cpmBar" style="width:0%"></div></div>
+                  <span style="font-family:var(--font-terminal);font-size:1rem;width:40px" id="cpmVal">0</span>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
+                  <span style="font-family:var(--font-mono);font-size:.75rem;font-weight:600;width:40px">LAT:</span>
+                  <div class="win-progress" style="flex:1"><div class="win-progress-bar" id="latBar" style="width:0%;background:repeating-linear-gradient(90deg,#ff6b9d 0px,#ff6b9d 8px,#6b5b95 8px,#6b5b95 10px)"></div></div>
+                  <span style="font-family:var(--font-terminal);font-size:1rem;width:50px" id="avgLatency">0ms</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="win-window comet-card">
+            <div class="win-titlebar">
+              <span>TRANSMISSION_LOG.TXT</span>
+              <div class="win-btn">?</div>
+            </div>
+            <div class="win-screen">
+              <div class="timeline" id="timeline">
+                <div class="empty"><div class="icon">&#9737;</div>AWAITING TRANSMISSION...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== JOURNAL ==================== -->
+      <div id="tab-journal" class="tab-panel">
+
+        <!-- Toolbar: Search + Nav + View Toggle -->
+        <div class="tt-toolbar">
+          <div class="search-box" style="margin-bottom:0;flex:1;max-width:380px">
+            <input type="text" class="search-input" id="searchInput" placeholder="> SEARCH..." onkeydown="if(event.key==='Enter')doSearch()">
+            <button class="search-btn" onclick="doSearch()">SEARCH</button>
+          </div>
+          <div class="tt-nav">
+            <button class="win-btn" onclick="ttNavWeek(-1)" title="Previous week">&laquo;</button>
+            <div class="tt-week-label" id="ttWeekLabel">---</div>
+            <button class="win-btn" onclick="ttNavWeek(1)" title="Next week">&raquo;</button>
+            <button class="win-btn" onclick="ttNavToday()" style="margin-left:4px">TODAY</button>
+          </div>
+          <div class="tt-view-toggle">
+            <button class="win-btn active" id="ttBtnGrid" onclick="ttSetView('grid')">TIMETABLE</button>
+            <button class="win-btn" id="ttBtnList" onclick="ttSetView('list')">LIST</button>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="tt-legend">
+          <div class="tt-legend-item">VISUAL SNAPSHOTS — COLOR BY APP:</div>
+          <div class="tt-legend-item"><div class="tt-legend-dot" style="background:rgba(255,107,157,.22);border-color:#ff6b9d"></div></div>
+          <div class="tt-legend-item"><div class="tt-legend-dot" style="background:rgba(0,255,255,.18);border-color:#00ffff"></div></div>
+          <div class="tt-legend-item"><div class="tt-legend-dot" style="background:rgba(0,255,0,.15);border-color:#00ff00"></div></div>
+          <div class="tt-legend-item"><div class="tt-legend-dot" style="background:rgba(255,255,0,.15);border-color:#ffff00"></div></div>
+          <div class="tt-legend-item"><div class="tt-legend-dot" style="background:rgba(107,91,149,.28);border-color:#9b8ec4"></div></div>
+          <div class="tt-legend-item"><div class="tt-legend-dot" style="background:rgba(255,159,67,.2);border-color:#ff9f43"></div></div>
+          <div class="tt-legend-item" style="opacity:.4">&nbsp;| OTHER EVENTS &rarr; LIST VIEW</div>
+        </div>
+
+        <!-- Main content area: Timetable (default) or List -->
+        <div id="ttGridView">
+          <div class="win-window comet-card">
+            <div class="win-titlebar">
+              <span>MISSION_TIMETABLE.EXE</span>
+              <div class="tt-stats" id="ttStats"></div>
+            </div>
+            <div class="tt-grid-wrap" id="ttGridWrap">
+              <div class="tt-grid" id="ttGrid">
+                <div class="empty" style="grid-column:1/-1;padding:60px">
+                  <div class="icon">&#9737;</div>LOADING TIMETABLE DATA...
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="ttListView" style="display:none">
+          <div class="grid grid-1-2">
+            <div>
+              <div class="win-window" style="margin-bottom:8px">
+                <div class="win-titlebar"><span>MISSION_DATES.DIR</span></div>
+                <div class="win-screen sidebar-list" id="journalDays">
+                  <div class="empty">LOADING...</div>
+                </div>
+              </div>
+              <div class="win-window">
+                <div class="win-titlebar"><span>MEMORY_BANKS.DIR</span></div>
+                <div class="win-screen sidebar-list" id="memoryList">
+                  <div class="empty">LOADING...</div>
+                </div>
+              </div>
+            </div>
+            <div class="win-window comet-card">
+              <div class="win-titlebar"><span>JOURNAL_VIEWER.EXE</span></div>
+              <div class="win-screen content-area" id="journalContent">
+                <div class="empty"><div class="icon">&#9737;</div>SELECT A MISSION DATE TO VIEW LOG ENTRIES</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="searchResults" style="margin-top:8px;display:none">
+          <div class="win-window">
+            <div class="win-titlebar"><span>SEARCH_RESULTS.TXT</span></div>
+            <div class="win-screen" id="searchResultsList"></div>
+          </div>
+        </div>
+
+        <!-- Detail popup (hidden) -->
+        <div id="ttDetailOverlay" class="tt-detail-overlay" style="display:none" onclick="ttCloseDetail(event)">
+          <div class="win-window tt-detail" onclick="event.stopPropagation()">
+            <div class="win-titlebar">
+              <span id="ttDetailTitle">ENTRY_DETAIL.EXE</span>
+              <div class="win-titlebar-buttons"><div class="win-btn" onclick="ttCloseDetail()">X</div></div>
+            </div>
+            <div class="win-screen" style="padding:12px" id="ttDetailBody"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== EXPERIMENTS ==================== -->
+      <div id="tab-experiments" class="tab-panel">
+        <div class="grid grid-2" style="gap:8px;margin-bottom:8px">
+          <!-- Benchmark Control -->
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>BENCHMARK_CONTROL.EXE</span></div>
+            <div class="win-screen" style="padding:12px">
+
+              <!-- Brain Model -->
+              <div class="form-group">
+                <label>Brain Model:</label>
+                <select id="bmBrainModel" class="win-select" style="width:100%">
+                  <option value="qwen3:4b">qwen3:4b (~2.5GB)</option>
+                  <option value="qwen3:8b">qwen3:8b (~5GB)</option>
+                  <option value="gemma3:12b">gemma3:12b (~8GB)</option>
+                  <option value="llama3.1:8b">llama3.1:8b (~5GB)</option>
+                  <option value="deepseek-r1:8b">deepseek-r1:8b (~5GB)</option>
+                </select>
+              </div>
+
+              <!-- VLM Model -->
+              <div class="form-group">
+                <label>VLM Model:</label>
+                <select id="bmVlmModel" class="win-select" style="width:100%">
+                  <option value="">None (Text Only)</option>
+                  <option value="moondream">moondream (~1.7GB)</option>
+                  <option value="qwen3-vl:8b">qwen3-vl:8b (~5GB)</option>
+                  <option value="llava">llava (~3.5GB)</option>
+                </select>
+              </div>
+
+              <!-- Embedding Model -->
+              <div class="form-group">
+                <label>Embedding Model:</label>
+                <select id="bmEmbedModel" class="win-select" style="width:100%">
+                  <option value="nomic-embed-text">nomic-embed-text (~0.3GB)</option>
+                  <option value="qwen3-embedding:4b">qwen3-embedding:4b (~2.5GB)</option>
+                  <option value="qwen3-embedding:8b">qwen3-embedding:8b (~5GB)</option>
+                </select>
+              </div>
+
+              <!-- Dataset -->
+              <div class="form-group">
+                <label>Dataset:</label>
+                <select id="bmDataset" class="win-select" style="width:100%">
+                  <option value="videogui">videogui (External)</option>
+                  <option value="gui-world">gui-world (External)</option>
+                  <option value="session_001">session_001 (External)</option>
+                  <option value="synthetic">synthetic (Generated)</option>
+                </select>
+              </div>
+
+              <!-- Phase -->
+              <div class="form-group">
+                <label>Phase Identifier:</label>
+                <input type="text" id="bmPhase" class="win-select" style="width:100%" value="phase1a" placeholder="e.g., phase1a, phase1b">
+              </div>
+
+              <!-- Mode & Runs -->
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div class="form-group">
+                  <label>Mode:</label>
+                  <select id="bmModeSelect" class="win-select" style="width:100%">
+                    <option value="quick">Quick (~5-15m)</option>
+                    <option value="standard">Standard (~1-3h)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Runs:</label>
+                  <input type="number" id="bmRuns" class="win-select" style="width:100%" min="1" max="10" value="1">
+                </div>
+              </div>
+
+              <!-- Seed -->
+              <div class="form-group">
+                <label>Seed:</label>
+                <input type="number" id="bmSeed" class="win-select" style="width:100%" value="42">
+              </div>
+
+              <!-- Methods Selection -->
+              <div class="form-group">
+                <label>Methods: <span style="font-size:0.8em;color:var(--cyber-cyan);cursor:pointer" onclick="selectAllMethods(true)">[Select All]</span> <span style="font-size:0.8em;color:var(--cyber-pink);cursor:pointer" onclick="selectAllMethods(false)">[Clear]</span></label>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:4px;margin-top:4px;max-height:150px;overflow-y:auto;border:1px solid var(--win-button-shadow);padding:6px">
+                  <label style="font-size:0.85em"><input type="checkbox" value="naive_full" class="method-check" checked> naive_full</label>
+                  <label style="font-size:0.85em"><input type="checkbox" value="rule_based" class="method-check" checked> rule_based</label>
+                  <label style="font-size:0.85em"><input type="checkbox" value="fixed_sampling" class="method-check" checked> fixed_sampling</label>
+                  <label style="font-size:0.85em"><input type="checkbox" value="embedding_only" class="method-check" checked> embedding_only</label>
+                  <label style="font-size:0.85em"><input type="checkbox" value="llm_classifier" class="method-check" checked> llm_classifier</label>
+                  <label style="font-size:0.85em"><input type="checkbox" value="hsr" class="method-check" checked> hsr</label>
+                  <label style="font-size:0.85em"><input type="checkbox" value="memgpt_tiered" class="method-check" checked> memgpt_tiered</label>
+                  <label style="font-size:0.85em"><input type="checkbox" value="rag_memory" class="method-check" checked> rag_memory</label>
+                  <label style="font-size:0.85em"><input type="checkbox" value="sliding_window" class="method-check" checked> sliding_window</label>
+                  <label style="font-size:0.85em"><input type="checkbox" value="thompson_router" class="method-check" checked> thompson_router</label>
+                  <label style="font-size:0.85em"><input type="checkbox" value="fewshot_icl" class="method-check" checked> fewshot_icl</label>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div style="display:flex;gap:8px;margin-top:12px">
+                <button class="win-btn win-btn-primary" id="btnRunBenchmark" onclick="runBenchmark()">▶ RUN BENCHMARK</button>
+                <button class="win-btn" id="btnStopBenchmark" onclick="stopExperiment()" disabled>⏹ STOP</button>
+              </div>
+
+              <!-- Progress -->
+              <div id="bmRunStatus" style="margin-top:12px;display:none">
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                  <span style="font-family:var(--font-mono);font-size:.85rem;font-weight:600" id="bmStatusText">INITIALIZING...</span>
+                  <span style="font-family:var(--font-terminal);color:var(--cyber-cyan)" id="bmProgress">0%</span>
+                </div>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar" id="bmProgressBar" style="width:0%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Config-Based Run + Live Metrics -->
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>LIVE_METRICS.MON</span></div>
+            <div class="win-screen" style="padding:8px">
+              <div class="grid grid-2" style="gap:8px">
+                <div class="metric-box">
+                  <div class="metric-label">TOKENS</div>
+                  <div class="readout cyber-cyan" id="liveTokens">0</div>
+                </div>
+                <div class="metric-box">
+                  <div class="metric-label">LLM CALLS</div>
+                  <div class="readout cyber-pink" id="liveLlmCalls">0</div>
+                </div>
+                <div class="metric-box">
+                  <div class="metric-label">SNAPSHOTS</div>
+                  <div class="readout cyber-green" id="liveSnapshots">0</div>
+                </div>
+                <div class="metric-box">
+                  <div class="metric-label">SKIPS</div>
+                  <div class="readout cyber-yellow" id="liveSkips">0</div>
+                </div>
+              </div>
+              <div style="margin-top:8px">
+                <div class="metric-label">CACHE HIT RATE</div>
+                <div class="progress-bar-wrap"><div class="progress-bar" id="liveCacheBar" style="width:0%;background:var(--cyber-pink)"></div></div>
+              </div>
+              <div style="margin-top:4px">
+                <div class="metric-label">SEMANTIC FILTER RATE</div>
+                <div class="progress-bar-wrap"><div class="progress-bar" id="liveSemanticBar" style="width:0%;background:var(--cyber-cyan)"></div></div>
+              </div>
+              <div style="margin-top:8px;border-top:1px solid var(--win-button-shadow);padding-top:8px">
+                <div class="form-group" style="margin-bottom:4px">
+                  <label style="font-size:.8rem">Config Run:</label>
+                  <select id="expConfigSelect" class="win-select" style="width:100%;font-size:.8rem"></select>
+                </div>
+                <div style="display:flex;gap:4px">
+                  <button class="win-btn" id="btnStartExp" onclick="startExperiment()" style="font-size:.75rem">▶ RUN CONFIG</button>
+                  <button class="win-btn" id="btnStopExp" onclick="stopExperiment()" disabled style="font-size:.75rem">⏹ STOP</button>
+                </div>
+                <div id="expRunStatus" style="margin-top:8px;display:none">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                    <span style="font-family:var(--font-mono);font-size:.75rem;font-weight:600" id="expStatusText">RUNNING...</span>
+                    <span style="font-family:var(--font-terminal);color:var(--cyber-cyan);font-size:.9rem" id="expProgress">0%</span>
+                  </div>
+                  <div class="progress-bar-wrap">
+                    <div class="progress-bar" id="expProgressBar" style="width:0%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Config Table -->
+        <div class="win-window comet-card" style="margin-bottom:8px">
+          <div class="win-titlebar"><span>EXPERIMENT_CONFIGS.DAT</span></div>
+          <div class="win-content" style="overflow-x:auto;max-height:200px">
+            <table class="data-table" id="expConfigTable">
+              <thead><tr><th>DESIGNATION</th><th>DIMENSION</th><th>DESCRIPTION</th><th>ACTION</th></tr></thead>
+              <tbody id="expConfigBody"><tr><td colspan="4" class="empty">LOADING CONFIGS...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Results Table -->
+        <div class="win-window comet-card">
+          <div class="win-titlebar"><span>MISSION_RESULTS.DAT</span></div>
+          <div class="win-content" style="overflow-x:auto;max-height:200px">
+            <table class="data-table" id="expResultsTable">
+              <thead><tr><th>EXPERIMENT</th><th>RUN</th><th>TRACE</th><th>DURATION</th><th>TOKENS</th><th>DECISIONS</th><th>SEMANTIC%</th></tr></thead>
+              <tbody id="expResultsBody"><tr><td colspan="7" class="empty">NO RESULTS - RUN EXPERIMENTS TO POPULATE</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== ANALYTICS ==================== -->
+      <div id="tab-analytics" class="tab-panel">
+        <!-- Result Selector -->
+        <div class="win-window comet-card" style="margin-bottom:12px">
+          <div class="win-titlebar"><span>RESULT_SELECTOR.EXE</span></div>
+          <div class="win-screen" style="padding:12px">
+            <div style="display:flex;gap:8px;align-items:flex-end">
+              <div class="form-group" style="flex:1;margin:0">
+                <label>Select Experiment Result:</label>
+                <select id="analyticsResultSelect" class="win-select" style="width:100%">
+                  <option value="">-- Choose result to load --</option>
+                </select>
+              </div>
+              <button class="win-btn win-btn-primary" onclick="loadSelectedResult()">LOAD RESULTS</button>
+              <button class="win-btn" onclick="refreshResultsList()">REFRESH LIST</button>
+            </div>
+
+            <!-- Metadata Display -->
+            <div id="resultMetadata" style="margin-top:8px;font-size:0.85em;color:var(--cyber-cyan);font-family:var(--font-terminal);display:none">
+              <!-- Dynamically filled -->
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div class="grid grid-4" style="flex:1;gap:8px">
+            <div class="win-window comet-card">
+              <div class="win-titlebar"><span>METHODS</span></div>
+              <div class="win-screen" style="text-align:center;padding:8px">
+                <div class="readout readout-md cyber-cyan" id="aTotalMethods">---</div>
+              </div>
+            </div>
+            <div class="win-window comet-card">
+              <div class="win-titlebar"><span>BEST_QUALITY</span></div>
+              <div class="win-screen" style="text-align:center;padding:8px">
+                <div class="readout readout-md cyber-pink" id="aBestQuality">---</div>
+              </div>
+            </div>
+            <div class="win-window comet-card">
+              <div class="win-titlebar"><span>BEST_EFFICIENCY</span></div>
+              <div class="win-screen" style="text-align:center;padding:8px">
+                <div class="readout readout-md cyber-green" id="aBestEfficiency">---</div>
+              </div>
+            </div>
+            <div class="win-window comet-card">
+              <div class="win-titlebar"><span>DATA_SOURCE</span></div>
+              <div class="win-screen" style="text-align:center;padding:8px">
+                <div class="readout readout-md cyber-yellow" id="aDataSource" style="font-size:1rem">---</div>
+              </div>
+            </div>
+          </div>
+          <button class="win-btn win-btn-primary" onclick="loadAnalytics()" style="margin-left:8px;height:fit-content">REFRESH</button>
+        </div>
+        <div class="grid grid-2" style="gap:8px;margin-bottom:8px">
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>TOKEN_EFFICIENCY.GRF</span></div>
+            <div class="win-screen"><div class="chart-wrap"><canvas id="tokenChart"></canvas></div></div>
+          </div>
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>QUALITY_COMPARISON.GRF</span></div>
+            <div class="win-screen"><div class="chart-wrap"><canvas id="qualityChart"></canvas></div></div>
+          </div>
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>PARETO_FRONTIER.GRF</span></div>
+            <div class="win-screen"><div class="chart-wrap"><canvas id="paretoChart"></canvas></div></div>
+          </div>
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>LATENCY_PER_METHOD.GRF</span></div>
+            <div class="win-screen"><div class="chart-wrap"><canvas id="latencyChart"></canvas></div></div>
+          </div>
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>METHOD_RANKING.GRF</span></div>
+            <div class="win-screen"><div class="chart-wrap"><canvas id="radarChart"></canvas></div></div>
+          </div>
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>COMPARISON_TABLE.DAT</span></div>
+            <div class="win-content" style="overflow-x:auto;max-height:220px;padding:4px">
+              <table class="data-table" id="bmComparisonTable">
+                <thead><tr><th>METHOD</th><th>TOKENS</th><th>EFF%</th><th>LLM</th><th>ROUGE-L</th><th>QUALITY</th><th>LAT(ms)</th></tr></thead>
+                <tbody id="bmComparisonBody"><tr><td colspan="7" class="empty">RUN BENCHMARK TO POPULATE</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== FILES ==================== -->
+      <div id="tab-files" class="tab-panel">
+        <div class="grid grid-2" style="gap:8px">
+          <!-- File List -->
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>FILE_EXPLORER.EXE</span></div>
+            <div class="win-screen" style="padding:0">
+              <div style="display:flex;gap:4px;padding:6px;border-bottom:1px solid var(--win-button-shadow)">
+                <button class="win-btn file-cat-btn active" onclick="loadFileCategory('all',this)">ALL</button>
+                <button class="win-btn file-cat-btn" onclick="loadFileCategory('configs',this)">CONFIGS</button>
+                <button class="win-btn file-cat-btn" onclick="loadFileCategory('memory',this)">MEMORY</button>
+                <button class="win-btn file-cat-btn" onclick="loadFileCategory('records',this)">RECORDS</button>
+                <button class="win-btn file-cat-btn" onclick="loadFileCategory('settings',this)">SETTINGS</button>
+              </div>
+              <div class="log-list" id="fileList" style="max-height:400px;overflow-y:auto"></div>
+            </div>
+          </div>
+          <!-- File Editor -->
+          <div class="win-window comet-card">
+            <div class="win-titlebar">
+              <span id="editorTitle">EDITOR.EXE</span>
+              <div class="win-titlebar-buttons">
+                <button class="win-btn" onclick="saveFile()" title="Save">💾</button>
+                <button class="win-btn" onclick="reloadFile()" title="Reload">🔄</button>
+              </div>
+            </div>
+            <div class="win-screen" style="padding:0">
+              <textarea id="fileEditor" class="file-editor" placeholder="Select a file to edit..."></textarea>
+              <div id="editorStatus" class="editor-status"></div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button class="win-btn" onclick="hotReloadConfig()">🔥 HOT RELOAD CONFIG</button>
+          <span id="reloadStatus" style="font-family:var(--font-terminal);color:var(--cyber-green);font-size:1.2rem"></span>
+        </div>
+      </div>
+
+      <!-- ==================== RESEARCH ==================== -->
+      <div id="tab-research" class="tab-panel">
+        <div class="grid grid-2" style="gap:8px">
+          <!-- ESM Control -->
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>ESM_CONTROL.EXE</span></div>
+            <div class="win-screen" style="padding:12px">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+                <span style="font-family:var(--font-pixel);font-size:.6rem">ESM STATUS:</span>
+                <span id="esmStatus" class="readout" style="color:var(--cyber-green)">ACTIVE</span>
+              </div>
+              <div class="form-group">
+                <label>Interval (hours):</label>
+                <select id="esmInterval" class="win-select">
+                  <option value="2">2 Hours</option>
+                  <option value="4" selected>4 Hours</option>
+                  <option value="6">6 Hours</option>
+                  <option value="8">8 Hours</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Next Trigger:</label>
+                <span id="esmNextTrigger" class="readout" style="font-size:1.2rem">--:--</span>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:12px">
+                <button class="win-btn win-btn-primary" onclick="triggerESM()">▶ TRIGGER NOW</button>
+                <button class="win-btn" onclick="toggleESM()">⏸ PAUSE</button>
+              </div>
+            </div>
+          </div>
+          <!-- Participants -->
+          <div class="win-window comet-card">
+            <div class="win-titlebar"><span>PARTICIPANTS.DB</span></div>
+            <div class="win-screen" style="padding:0">
+              <div class="log-list" id="participantList" style="max-height:200px;overflow-y:auto"></div>
+              <div style="padding:8px;border-top:1px solid var(--win-button-shadow)">
+                <input type="text" id="newParticipantName" class="win-input" placeholder="Participant name..." style="width:calc(100% - 80px)">
+                <button class="win-btn" onclick="addParticipant()">+ ADD</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ESM Responses -->
+        <div class="win-window comet-card" style="margin-top:8px">
+          <div class="win-titlebar"><span>ESM_RESPONSES.LOG</span></div>
+          <div class="win-screen" style="padding:0">
+            <div class="log-list" id="esmResponseList" style="max-height:200px;overflow-y:auto"></div>
+          </div>
+        </div>
+        <!-- Export -->
+        <div class="win-window comet-card" style="margin-top:8px">
+          <div class="win-titlebar"><span>DATA_EXPORT.EXE</span></div>
+          <div class="win-screen" style="padding:12px">
+            <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center">
+              <label class="checkbox-label"><input type="checkbox" id="exportAnonymize" checked> Anonymize IDs</label>
+              <label class="checkbox-label"><input type="checkbox" id="exportRemovePaths" checked> Remove Paths</label>
+              <label class="checkbox-label"><input type="checkbox" id="exportIncludeLogs"> Include Raw Logs</label>
+              <select id="exportFormat" class="win-select">
+                <option value="json">JSON</option>
+                <option value="csv">CSV</option>
+              </select>
+              <button class="win-btn win-btn-primary" onclick="exportData()">📥 EXPORT</button>
+            </div>
+            <div id="exportStatus" style="margin-top:8px;font-family:var(--font-terminal);color:var(--cyber-cyan)"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ESM Popup Modal -->
+<div id="esmPopup" class="esm-popup-overlay" style="display:none">
+  <div class="win-window esm-popup">
+    <div class="win-titlebar" style="background:linear-gradient(90deg, var(--cyber-purple), var(--cyber-pink))">
+      <span>MAJOR TOM · EXPERIENCE SAMPLING</span>
+      <button class="win-btn" onclick="closeESM()">×</button>
+    </div>
+    <div class="win-screen esm-content" id="esmContent">
+      <!-- Questions will be inserted here -->
+    </div>
+    <div class="esm-footer">
+      <button class="win-btn" onclick="snoozeESM()">⏰ REMIND LATER</button>
+      <button class="win-btn win-btn-primary" onclick="submitESM()">✓ SUBMIT</button>
+    </div>
+  </div>
+</div>
+
+<!-- Taskbar -->
+<div class="taskbar">
+  <button class="start-button">
+    <div class="start-icon"></div>
+    START
+  </button>
+  <div class="taskbar-divider"></div>
+  <div class="win-btn" style="width:auto;padding:4px 10px;font-size:.8rem">
+    MAJOR_TOM.EXE
+  </div>
+  <div class="taskbar-tray">
+    <div class="tray-led" id="trayLed"></div>
+    <span id="statusText">ONLINE</span>
+    <span id="taskbarTime">00:00</span>
+  </div>
+</div>
+
+<script>
+/* ============ STATE ============ */
+let currentTab = 'dashboard';
+let refreshInterval = null;
+let charts = {};
+
+/* ============ TAB SWITCHING ============ */
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    if (t.textContent.toLowerCase() === tab) t.classList.add('active');
+  });
+  if (tab === 'journal') loadJournal();
+  if (tab === 'experiments') loadExperiments();
+  if (tab === 'analytics') loadAnalytics();
+}
+
+/* ============ API HELPER ============ */
+async function api(path) {
+  try {
+    const r = await fetch(path);
+    if (!r.ok) return null;
+    return await r.json();
+  } catch { return null; }
+}
+
+/* ============ FORMATTING ============ */
+function fmt(n) {
+  if (n == null || isNaN(n)) return '0';
+  if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
+  return String(Math.round(n));
+}
+function pct(n) {
+  if (n == null || isNaN(n)) return '0.0%';
+  return (n * 100).toFixed(1) + '%';
+}
+function formatUptime(s) {
+  if (!s) return '---';
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60);
+  return h > 0 ? h+'H '+m+'M' : m+'M';
+}
+
+/* ============ CLOCK ============ */
+function updateClock() {
+  const now = new Date();
+  document.getElementById('taskbarTime').textContent =
+    now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* ============ DASHBOARD ============ */
+async function refreshDashboard() {
+  const [status, current, summary, recent] = await Promise.all([
+    api('/api/monitoring/status'),
+    api('/api/monitoring/current'),
+    api('/api/metrics/summary'),
+    api('/api/monitoring/recent?limit=30'),
+  ]);
+
+  if (status) {
+    const led = document.getElementById('trayLed');
+    const txt = document.getElementById('statusText');
+    led.className = 'tray-led ' + (status.running ? '' : 'offline');
+    txt.textContent = status.running ? 'ONLINE' : 'OFFLINE';
+    document.getElementById('brainModel').textContent = status.brain_model || '---';
+    document.getElementById('eyeModel').textContent = status.eye_model || '---';
+    document.getElementById('currentTask').textContent = status.current_task_id || '---';
+    document.getElementById('uptime').textContent = formatUptime(status.uptime_seconds);
+  }
+
+  if (current) {
+    const kpm = current.kpm || 0, cpm = current.cpm || 0;
+    document.getElementById('kpmVal').textContent = kpm;
+    document.getElementById('cpmVal').textContent = cpm;
+    document.getElementById('kpmBar').style.width = Math.min(kpm/300*100,100)+'%';
+    document.getElementById('cpmBar').style.width = Math.min(cpm/60*100,100)+'%';
+  }
+
+  if (summary) {
+    const tk = summary.token_metrics || {}, rt = summary.routing_metrics || {}, lt = summary.latency_metrics || {};
+    document.getElementById('totalTokens').textContent = fmt(tk.total_tokens);
+    document.getElementById('tokenBreakdown').textContent =
+      'BRAIN:' + fmt(tk.brain_tokens_total) + ' EYE:' + fmt(tk.eye_tokens_total) + ' EMB:' + fmt(tk.embedding_tokens_total);
+    document.getElementById('totalDecisions').textContent = fmt(rt.total_decisions);
+    document.getElementById('decisionBreakdown').textContent =
+      'SNAP:' + fmt(rt.snapshot_count) + ' SKIP:' + fmt(rt.skip_count);
+    document.getElementById('semanticRate').textContent = pct(rt.semantic_hit_rate);
+    document.getElementById('semanticCount').textContent = fmt(rt.semantic_hit_count) + ' HITS';
+    document.getElementById('cacheRate').textContent = pct(rt.cache_hit_rate);
+    document.getElementById('cacheCount').textContent = fmt(rt.cache_hit_count) + ' HITS';
+    const latMs = lt.decision_avg_ms || 0;
+    document.getElementById('avgLatency').textContent = latMs.toFixed(0) + 'ms';
+    document.getElementById('latBar').style.width = Math.min(latMs/5000*100,100)+'%';
+  }
+
+  // Render timeline
+  const tl = document.getElementById('timeline');
+  if (recent && recent.length > 0) {
+    tl.innerHTML = recent.slice().reverse().map(e => {
+      const t = e.timestamp ? e.timestamp.split('T')[1] || e.timestamp : '';
+      const time = t.substring(0, 8);
+      const type = e.type || '';
+      const d = e.data || {};
+      let badge = 'badge-skip', badgeText = type.toUpperCase();
+      if (type === 'decision') {
+        badge = d.action === 'SNAPSHOT' ? 'badge-snapshot' : 'badge-skip';
+        badgeText = d.action || 'DECISION';
+      } else if (type === 'task_switch') {
+        badge = 'badge-switch'; badgeText = 'SWITCH';
+      } else if (type === 'journal_entry') {
+        badge = 'badge-snapshot'; badgeText = d.type || 'ENTRY';
+      } else if (type === 'idle_start' || type === 'idle_end') {
+        badge = 'badge-idle'; badgeText = type === 'idle_start' ? 'AWAY' : 'BACK';
+      }
+      let text = '';
+      if (d.title) text = d.title;
+      else if (d.to_task) text = d.from_task + ' > ' + d.to_task;
+      else if (d.preview) text = d.preview.substring(0, 60);
+      else if (d.task_id) text = d.task_id;
+      else text = JSON.stringify(d).substring(0, 60);
+      return '<div class="timeline-item">' +
+        '<span class="timeline-time">' + time + '</span>' +
+        '<span class="timeline-badge ' + badge + '">' + badgeText + '</span>' +
+        '<span class="timeline-text">' + text.replace(/</g,'&lt;') + '</span>' +
+      '</div>';
+    }).join('');
+  } else if (recent && recent.length === 0) {
+    tl.innerHTML = '<div class="empty">NO TRANSMISSIONS YET</div>';
+  }
+}
+
+/* ============ JOURNAL ============ */
+
+/* --- Timetable State --- */
+let ttWeekStart = null;  // Monday of current view week
+let ttEntries = [];      // cached timetable entries
+let ttCurrentView = 'grid'; // 'grid' or 'list'
+
+const TT_HOURS_START = 6;   // start display at 06:00
+const TT_HOURS_END = 24;    // end display at 00:00 (midnight)
+const TT_DAY_NAMES = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
+const TT_TYPE_CLASS = {
+  VLM_ANALYSIS: 'tt-type-vlm',
+  TEXT_SNAPSHOT: 'tt-type-text',
+  IDLE_START: 'tt-type-idle',
+  FILE_MODIFIED: 'tt-type-file',
+  TASK_SWITCH: 'tt-type-switch',
+  FOCUS_SWITCH: 'tt-type-focus',
+};
+const TT_TYPE_LABEL = {
+  VLM_ANALYSIS: 'VISUAL',
+  TEXT_SNAPSHOT: 'TEXT',
+  IDLE_START: 'IDLE',
+  FILE_MODIFIED: 'FILE',
+  TASK_SWITCH: 'SWITCH',
+  FOCUS_SWITCH: 'FOCUS',
+};
+
+// Per-app color: hash app name → CSS class tt-color-0..11
+const TT_COLOR_COUNT = 12;
+const _ttAppClassCache = {};
+function ttAppClass(appName) {
+  const key = appName || '';
+  if (_ttAppClassCache[key] !== undefined) return _ttAppClassCache[key];
+  let h = 0;
+  for (let i = 0; i < key.length; i++) h = ((h << 5) - h + key.charCodeAt(i)) | 0;
+  const cls = 'tt-color-' + (Math.abs(h) % TT_COLOR_COUNT);
+  _ttAppClassCache[key] = cls;
+  return cls;
+}
+
+function ttGetMonday(d) {
+  const dt = new Date(d);
+  const day = dt.getDay();
+  const diff = dt.getDate() - day + (day === 0 ? -6 : 1);
+  dt.setDate(diff);
+  dt.setHours(0,0,0,0);
+  return dt;
+}
+
+function ttFmtDate(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function ttNavWeek(delta) {
+  ttWeekStart = new Date(ttWeekStart.getTime() + delta * 7 * 86400000);
+  ttLoadTimetable();
+}
+
+function ttNavToday() {
+  ttWeekStart = ttGetMonday(new Date());
+  ttLoadTimetable();
+}
+
+function ttSetView(view) {
+  ttCurrentView = view;
+  document.getElementById('ttBtnGrid').classList.toggle('active', view === 'grid');
+  document.getElementById('ttBtnList').classList.toggle('active', view === 'list');
+  document.getElementById('ttGridView').style.display = view === 'grid' ? '' : 'none';
+  document.getElementById('ttListView').style.display = view === 'list' ? '' : 'none';
+  if (view === 'list') ttLoadListView();
+}
+
+function ttUpdateWeekLabel() {
+  const end = new Date(ttWeekStart.getTime() + 6 * 86400000);
+  const s = ttWeekStart;
+  const sMonth = s.toLocaleString('en', {month:'short'}).toUpperCase();
+  const eMonth = end.toLocaleString('en', {month:'short'}).toUpperCase();
+  const label = s.getDate() + ' ' + sMonth + ' — ' + end.getDate() + ' ' + eMonth + ' ' + end.getFullYear();
+  document.getElementById('ttWeekLabel').textContent = label;
+}
+
+async function ttLoadTimetable() {
+  ttUpdateWeekLabel();
+  const end = new Date(ttWeekStart.getTime() + 6 * 86400000);
+  const startStr = ttFmtDate(ttWeekStart);
+  const endStr = ttFmtDate(end);
+  const data = await api('/api/journal/timetable?start=' + startStr + '&end=' + endStr);
+  ttEntries = data || [];
+  ttRenderGrid();
+}
+
+const TT_COLLAPSE_THRESHOLD = 5; // show first N entries, collapse the rest
+
+function ttRenderGrid() {
+  const grid = document.getElementById('ttGrid');
+  const today = ttFmtDate(new Date());
+
+  // Build day dates for this week
+  const dayDates = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(ttWeekStart.getTime() + i * 86400000);
+    dayDates.push(ttFmtDate(d));
+  }
+
+  // Filter to VLM_ANALYSIS only for the timetable view
+  const gridEntries = ttEntries.filter(e => e.entry_type === 'VLM_ANALYSIS');
+
+  // Group entries by (date, hour), sorted by time within each group
+  const entryMap = {}; // "date|hour" -> [entries]
+  gridEntries.forEach(e => {
+    const h = parseInt(e.time.split(':')[0], 10);
+    const key = e.date + '|' + h;
+    if (!entryMap[key]) entryMap[key] = [];
+    entryMap[key].push(e);
+  });
+  // Sort each group by minute
+  Object.values(entryMap).forEach(arr => {
+    arr.sort((a, b) => a.time.localeCompare(b.time));
+  });
+
+  // Determine active hour range
+  let minHour = TT_HOURS_START, maxHour = TT_HOURS_END;
+  gridEntries.forEach(e => {
+    const h = parseInt(e.time.split(':')[0], 10);
+    if (h < minHour) minHour = h;
+    if (h >= maxHour) maxHour = h + 1;
+  });
+  if (minHour > TT_HOURS_START) minHour = TT_HOURS_START;
+  if (maxHour < TT_HOURS_END) maxHour = TT_HOURS_END;
+
+  let html = '';
+  let cellId = 0;
+
+  // Header row: corner + 7 day headers
+  html += '<div class="tt-corner">HOUR</div>';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(ttWeekStart.getTime() + i * 86400000);
+    const isToday = dayDates[i] === today;
+    html += '<div class="tt-day-header' + (isToday ? ' today' : '') + '">' +
+      '<span class="tt-day-name">' + TT_DAY_NAMES[i] + '</span>' +
+      '<span class="tt-day-date">' + d.getDate() + '/' + (d.getMonth()+1) + '</span>' +
+    '</div>';
+  }
+
+  // Hour rows
+  for (let h = minHour; h < maxHour; h++) {
+    const hourStr = String(h).padStart(2,'0') + ':00';
+    html += '<div class="tt-time">' + hourStr + '</div>';
+
+    for (let d = 0; d < 7; d++) {
+      const date = dayDates[d];
+      const key = date + '|' + h;
+      const entries = entryMap[key] || [];
+      const isEven = h % 2 === 0;
+      const cid = 'ttc' + (cellId++);
+      const needsCollapse = entries.length > TT_COLLAPSE_THRESHOLD;
+
+      html += '<div class="tt-cell' + (isEven ? ' tt-cell-even' : '') + '" id="' + cid + '">';
+
+      entries.forEach((e, idx) => {
+        const label = e.app ? e.app : (TT_TYPE_LABEL[e.entry_type] || e.entry_type);
+        const entryIdx = ttEntries.indexOf(e);
+        const hidden = needsCollapse && idx >= TT_COLLAPSE_THRESHOLD;
+        const colorCls = ttAppClass(e.app || e.title || '');
+
+        html += '<div class="tt-entry ' + colorCls + (hidden ? ' tt-hidden' : '') + '" onclick="ttShowDetail(' + entryIdx + ')">';
+        html += '<span class="tt-entry-time">' + e.time + '</span>';
+        html += '<span class="tt-entry-label">' + escHtml(label) + '</span>';
+        html += '</div>';
+      });
+
+      if (needsCollapse) {
+        const extra = entries.length - TT_COLLAPSE_THRESHOLD;
+        html += '<div class="tt-more-btn" onclick="ttExpandCell(\'' + cid + '\')">+ ' + extra + ' MORE</div>';
+      }
+
+      html += '</div>';
+    }
+  }
+
+  grid.innerHTML = html;
+
+  // Stats — show VLM count on grid, total in parentheses
+  const stats = document.getElementById('ttStats');
+  const vlmCount = gridEntries.length;
+  const totalAll = ttEntries.length;
+  stats.innerHTML = '<span>VISUAL: <span class="tt-stat-num">' + vlmCount + '</span></span>' +
+    '<span>TOTAL: <span class="tt-stat-num">' + totalAll + '</span> (LIST)</span>';
+}
+
+function ttExpandCell(cellId) {
+  const cell = document.getElementById(cellId);
+  if (!cell) return;
+  cell.classList.toggle('tt-expanded');
+  const btn = cell.querySelector('.tt-more-btn');
+  if (btn) {
+    const hiddenCount = cell.querySelectorAll('.tt-entry.tt-hidden').length;
+    btn.textContent = cell.classList.contains('tt-expanded') ? '- COLLAPSE' : '+ ' + hiddenCount + ' MORE';
+  }
+}
+
+function ttShowDetail(idx) {
+  const e = ttEntries[idx];
+  if (!e) return;
+  const typeLabel = TT_TYPE_LABEL[e.entry_type] || e.entry_type;
+  const overlay = document.getElementById('ttDetailOverlay');
+  const body = document.getElementById('ttDetailBody');
+  const colorCls = ttAppClass(e.app || e.title || '');
+
+  body.innerHTML =
+    '<div class="tt-detail-type ' + colorCls + '">' + typeLabel + '</div>' +
+    '<div class="tt-detail-title">' + escHtml(e.app ? e.app + (e.title ? ' — ' + e.title : '') : e.title || typeLabel) + '</div>' +
+    '<div class="tt-detail-meta">' + e.date + ' @ ' + e.time + '</div>' +
+    (e.preview ? '<div class="tt-detail-preview">' + escHtml(e.preview) + '</div>' : '<div class="tt-detail-preview" style="opacity:.4">No preview content</div>');
+
+  document.getElementById('ttDetailTitle').textContent = 'ENTRY: ' + e.time + ' ' + typeLabel;
+  overlay.style.display = 'flex';
+}
+
+function ttCloseDetail(ev) {
+  if (ev && ev.target !== document.getElementById('ttDetailOverlay')) return;
+  document.getElementById('ttDetailOverlay').style.display = 'none';
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* --- List view (legacy) --- */
+async function ttLoadListView() {
+  const [days, memories] = await Promise.all([
+    api('/api/journal/days'),
+    api('/api/journal/memories'),
+  ]);
+
+  const daysEl = document.getElementById('journalDays');
+  if (days && days.length > 0) {
+    daysEl.innerHTML = days.map(d =>
+      '<div class="list-item" onclick="loadJournalDay(\''+d.date+'\',this)">' +
+        '<span>'+d.date+'</span><span class="list-count">'+d.entry_count+'</span>' +
+      '</div>'
+    ).join('');
+  } else {
+    daysEl.innerHTML = '<div class="empty">NO MISSION LOGS RECORDED</div>';
+  }
+
+  const memEl = document.getElementById('memoryList');
+  if (memories && memories.length > 0) {
+    memEl.innerHTML = memories.map(m =>
+      '<div class="list-item" onclick="loadMemory(\''+m.task_id+'\')">' +
+        '<span style="color:var(--cyber-pink)">'+m.task_id+'</span>' +
+        '<span class="list-count">'+(m.size_bytes/1024).toFixed(1)+'KB</span>' +
+      '</div>'
+    ).join('');
+  } else {
+    memEl.innerHTML = '<div class="empty">NO MEMORY BANKS ALLOCATED</div>';
+  }
+}
+
+async function loadJournal() {
+  if (!ttWeekStart) ttWeekStart = ttGetMonday(new Date());
+  if (ttCurrentView === 'grid') {
+    ttLoadTimetable();
+  } else {
+    ttLoadListView();
+  }
+}
+
+async function loadJournalDay(date, el) {
+  document.querySelectorAll('#journalDays .list-item').forEach(d => d.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const data = await api('/api/journal/day/' + date);
+  const content = document.getElementById('journalContent');
+  if (data) {
+    content.innerHTML = renderMarkdown(data.content);
+  } else {
+    content.innerHTML = '<div class="empty" style="color:var(--cyber-pink)">TRANSMISSION ERROR</div>';
+  }
+}
+
+async function loadMemory(taskId) {
+  const data = await api('/api/journal/memory/' + taskId);
+  const content = document.getElementById('journalContent');
+  if (data) {
+    content.innerHTML = '<h3>MEMORY_BANK: ' + taskId + '</h3>' + renderMarkdown(data.content);
+  }
+}
+
+function renderMarkdown(text) {
+  if (!text) return '';
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/^### (.+)$/gm,'<h3>$1</h3>')
+    .replace(/^## (.+)$/gm,'<h2>$1</h2>')
+    .replace(/^# (.+)$/gm,'<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong style="color:var(--cyber-pink)">$1</strong>')
+    .replace(/`(.+?)`/g,'<code>$1</code>')
+    .replace(/^> (.+)$/gm,'<blockquote>$1</blockquote>')
+    .replace(/^---$/gm,'<hr style="border:none;border-top:1px dashed var(--cyber-cyan);margin:12px 0">')
+    .replace(/^- (.+)$/gm,'<div style="padding-left:12px">> $1</div>')
+    .replace(/\n/g,'<br>');
+}
+
+async function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  const data = await api('/api/journal/search?q=' + encodeURIComponent(q));
+  const container = document.getElementById('searchResults');
+  const list = document.getElementById('searchResultsList');
+  if (data && data.length > 0) {
+    container.style.display = 'block';
+    list.innerHTML = data.map(r =>
+      '<div class="timeline-item">' +
+        '<span class="timeline-badge '+(r.source === 'journal' ? 'badge-snapshot' : 'badge-switch')+'">'+r.source.toUpperCase()+'</span>' +
+        '<span class="timeline-time" style="font-size:.9rem">'+r.file+':'+r.line_number+'</span>' +
+        '<span class="timeline-text">'+r.content.replace(/</g,'&lt;')+'</span>' +
+      '</div>'
+    ).join('');
+  } else {
+    container.style.display = 'block';
+    list.innerHTML = '<div class="empty">NO MATCHES FOUND</div>';
+  }
+}
+
+/* ============ EXPERIMENTS ============ */
+async function loadExperiments() {
+  const [configs, results] = await Promise.all([
+    api('/api/experiments/configs'),
+    api('/api/experiments/results'),
+  ]);
+
+  const cb = document.getElementById('expConfigBody');
+  if (configs && configs.length > 0) {
+    cb.innerHTML = configs.map(c => {
+      const dimColor = c.dimension.includes('token') ? 'cyber-cyan' : c.dimension.includes('memory') ? 'cyber-yellow' : 'cyber-pink';
+      return '<tr>' +
+        '<td style="color:var(--cyber-green)">'+c.name+'</td>' +
+        '<td><span class="dim-badge" style="border-color:var(--'+dimColor+');color:var(--'+dimColor+')">'+c.dimension.toUpperCase()+'</span></td>' +
+        '<td>'+c.description+'</td>' +
+        '<td style="font-size:.85rem;opacity:.7">'+c.path.split('/').pop()+'</td>' +
+      '</tr>';
+    }).join('');
+  } else {
+    cb.innerHTML = '<tr><td colspan="4" class="empty">NO CONFIGS FOUND</td></tr>';
+  }
+
+  const rb = document.getElementById('expResultsBody');
+  if (results && results.length > 0) {
+    rb.innerHTML = results.map(r => {
+      const exp = r.experiment || {};
+      const tk = (r.token_metrics || {});
+      const rt = (r.routing_metrics || {});
+      return '<tr>' +
+        '<td style="color:var(--cyber-green)">'+(exp.name || '---')+'</td>' +
+        '<td>'+(exp.run_id ?? '---')+'</td>' +
+        '<td style="font-size:.85rem">'+((exp.trace || '').split('/').pop() || '---')+'</td>' +
+        '<td>'+(exp.duration_seconds ? exp.duration_seconds.toFixed(0) + 'S' : '---')+'</td>' +
+        '<td>'+fmt(tk.total_tokens)+'</td>' +
+        '<td>'+fmt(rt.total_decisions)+'</td>' +
+        '<td>'+pct(rt.semantic_hit_rate)+'</td>' +
+      '</tr>';
+    }).join('');
+  } else {
+    rb.innerHTML = '<tr><td colspan="7" class="empty">NO RESULTS - INITIATE EXPERIMENTS TO POPULATE</td></tr>';
+  }
+}
+
+/* ============ ANALYTICS ============ */
+const cyberCyan = '#00ffff';
+const cyberPink = '#ff6b9d';
+const cyberGreen = '#00ff00';
+const cyberYellow = '#ffff00';
+const cyberPurple = '#6b5b95';
+const cyberOrange = '#ff9f43';
+const gridColor = 'rgba(0,255,255,.15)';
+const tickColor = 'rgba(0,255,255,.6)';
+
+const methodColors = [cyberCyan, cyberPink, cyberGreen, cyberYellow, cyberPurple, cyberOrange];
+const methodBgColors = ['rgba(0,255,255,.4)','rgba(255,107,157,.4)','rgba(0,255,0,.4)','rgba(255,255,0,.4)','rgba(107,91,149,.4)','rgba(255,159,67,.4)'];
+
+const barOpts = {
+  responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:true,position:'top',labels:{color:tickColor,font:{family:'VT323',size:11}}}},
+  scales:{
+    x:{grid:{color:gridColor},ticks:{color:tickColor,font:{family:'VT323',size:11},maxRotation:45},border:{color:'rgba(0,255,255,.3)'}},
+    y:{grid:{color:gridColor},ticks:{color:tickColor,font:{family:'VT323',size:11}},border:{color:'rgba(0,255,255,.3)'}}
+  }
+};
+
+const radarOpts = {
+  responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{position:'bottom',labels:{color:tickColor,font:{family:'VT323',size:11}}}},
+  scales:{
+    r:{
+      grid:{color:gridColor},
+      angleLines:{color:gridColor},
+      pointLabels:{color:tickColor,font:{family:'VT323',size:11}},
+      ticks:{display:false},
+      suggestedMin:0,suggestedMax:100
+    }
+  }
+};
+
+async function loadAnalytics() {
+  const data = await api('/api/experiments/results/consolidated');
+  if (!data || !data.chart_data || !data.chart_data.methods) {
+    document.getElementById('aTotalMethods').textContent = '0';
+    document.getElementById('aBestQuality').textContent = '---';
+    document.getElementById('aBestEfficiency').textContent = '---';
+    document.getElementById('aDataSource').textContent = 'NO DATA';
+    return;
+  }
+
+  const cd = data.chart_data;
+  const methods = cd.methods;
+  const numRuns = data.count || 0;
+
+  // Summary stats
+  document.getElementById('aTotalMethods').textContent = methods.length;
+  document.getElementById('aDataSource').textContent = numRuns + ' RUN' + (numRuns !== 1 ? 'S' : '');
+
+  // Find best quality
+  const maxQ = Math.max(...(cd.quality_scores || [0]));
+  const bestQIdx = (cd.quality_scores || []).indexOf(maxQ);
+  document.getElementById('aBestQuality').textContent = bestQIdx >= 0 ? methods[bestQIdx].replace(/_/g,' ').toUpperCase() : '---';
+
+  // Find best efficiency
+  const maxE = Math.max(...(cd.efficiency || [0]));
+  const bestEIdx = (cd.efficiency || []).indexOf(maxE);
+  document.getElementById('aBestEfficiency').textContent = bestEIdx >= 0 ? methods[bestEIdx].replace(/_/g,' ').toUpperCase() : '---';
+
+  const labels = methods.map(m => m.replace(/_/g,' ').toUpperCase());
+
+  // 1. Token Efficiency Bar Chart
+  if (charts.token) charts.token.destroy();
+  charts.token = new Chart(document.getElementById('tokenChart'), {
+    type:'bar',
+    data:{
+      labels: labels,
+      datasets:[
+        {label:'TOKENS',data:cd.tokens||[],backgroundColor:methodBgColors.slice(0,methods.length),borderColor:methodColors.slice(0,methods.length),borderWidth:2},
+      ]
+    },
+    options:{...barOpts,plugins:{...barOpts.plugins,legend:{display:false},title:{display:true,text:'Token Usage per Method',color:tickColor,font:{family:'VT323',size:14}}}}
+  });
+
+  // 2. Quality Comparison — grouped bar
+  if (charts.quality) charts.quality.destroy();
+  charts.quality = new Chart(document.getElementById('qualityChart'), {
+    type:'bar',
+    data:{
+      labels: labels,
+      datasets:[
+        {label:'ROUGE-L',data:cd.rouge_l||[],backgroundColor:'rgba(0,255,255,.5)',borderColor:cyberCyan,borderWidth:1},
+        {label:'QUALITY',data:cd.quality_scores||[],backgroundColor:'rgba(255,107,157,.5)',borderColor:cyberPink,borderWidth:1},
+        {label:'CLASS ACC',data:cd.classification_accuracy||[],backgroundColor:'rgba(0,255,0,.5)',borderColor:cyberGreen,borderWidth:1},
+      ]
+    },
+    options:{...barOpts,plugins:{...barOpts.plugins,title:{display:true,text:'Quality Metrics Comparison',color:tickColor,font:{family:'VT323',size:14}}},
+      scales:{...barOpts.scales,y:{...barOpts.scales.y,max:1.0}}}
+  });
+
+  // 3. Pareto Scatter — efficiency vs quality
+  if (charts.pareto) charts.pareto.destroy();
+  const scatterData = methods.map((m, i) => ({
+    x: (cd.efficiency||[])[i] || 0,
+    y: (cd.quality_scores||[])[i] || 0,
+    label: m,
+  }));
+  charts.pareto = new Chart(document.getElementById('paretoChart'), {
+    type:'scatter',
+    data:{
+      datasets:[{
+        label:'Methods',
+        data: scatterData,
+        backgroundColor: methodColors.slice(0, methods.length),
+        borderColor: methodColors.slice(0, methods.length),
+        pointRadius: 8,
+        pointHoverRadius: 12,
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        title:{display:true,text:'Pareto: Efficiency vs Quality',color:tickColor,font:{family:'VT323',size:14}},
+        tooltip:{callbacks:{
+          label: function(ctx) {
+            const pt = ctx.raw;
+            return (pt.label||'').replace(/_/g,' ') + ': Eff=' + pt.x.toFixed(1) + '%, Q=' + pt.y.toFixed(3);
+          }
+        }}
+      },
+      scales:{
+        x:{title:{display:true,text:'TOKEN EFFICIENCY %',color:tickColor,font:{family:'VT323',size:12}},grid:{color:gridColor},ticks:{color:tickColor,font:{family:'VT323',size:11}},border:{color:'rgba(0,255,255,.3)'}},
+        y:{title:{display:true,text:'QUALITY SCORE',color:tickColor,font:{family:'VT323',size:12}},grid:{color:gridColor},ticks:{color:tickColor,font:{family:'VT323',size:11}},border:{color:'rgba(0,255,255,.3)'}}
+      }
+    }
+  });
+
+  // 4. Latency Bar Chart
+  if (charts.latency) charts.latency.destroy();
+  charts.latency = new Chart(document.getElementById('latencyChart'), {
+    type:'bar',
+    data:{
+      labels: labels,
+      datasets:[{
+        label:'AVG LATENCY (ms)',
+        data: cd.latency_ms || [],
+        backgroundColor: methodBgColors.slice(0, methods.length),
+        borderColor: methodColors.slice(0, methods.length),
+        borderWidth: 2,
+      }]
+    },
+    options:{...barOpts,plugins:{...barOpts.plugins,legend:{display:false},title:{display:true,text:'Average Latency per Method (ms)',color:tickColor,font:{family:'VT323',size:14}}}}
+  });
+
+  // 5. Radar chart — normalized metrics
+  if (charts.radar) charts.radar.destroy();
+  const maxTokens = Math.max(...(cd.tokens||[1]), 1);
+  const maxLatency = Math.max(...(cd.latency_ms||[1]), 1);
+  const radarDatasets = methods.map((m, i) => ({
+    label: m.replace(/_/g,' ').toUpperCase(),
+    data: [
+      ((cd.efficiency||[])[i] || 0),
+      ((cd.quality_scores||[])[i] || 0) * 100,
+      ((cd.rouge_l||[])[i] || 0) * 100,
+      ((cd.classification_accuracy||[])[i] || 0) * 100,
+      (1 - ((cd.tokens||[])[i] || 0) / maxTokens) * 100,
+      (1 - ((cd.latency_ms||[])[i] || 0) / maxLatency) * 100,
+    ],
+    borderColor: methodColors[i % methodColors.length],
+    backgroundColor: methodBgColors[i % methodBgColors.length].replace('.4', '.15'),
+    borderWidth: 2,
+    pointBackgroundColor: methodColors[i % methodColors.length],
+    pointRadius: 3,
+  }));
+  charts.radar = new Chart(document.getElementById('radarChart'), {
+    type:'radar',
+    data:{
+      labels:['EFFICIENCY', 'QUALITY', 'ROUGE-L', 'CLASS ACC', 'TOKEN SAVING', 'SPEED'],
+      datasets: radarDatasets,
+    },
+    options:radarOpts
+  });
+
+  // 6. Comparison Table
+  const tbody = document.getElementById('bmComparisonBody');
+  if (methods.length > 0) {
+    const maxTokensVal = Math.max(...(cd.tokens||[1]));
+    const minTokensVal = Math.min(...(cd.tokens||[0]));
+    const maxQual = Math.max(...(cd.quality_scores||[0]));
+    const minQual = Math.min(...(cd.quality_scores||[1]));
+
+    tbody.innerHTML = methods.map((m, i) => {
+      const tokens = (cd.tokens||[])[i] || 0;
+      const eff = (cd.efficiency||[])[i] || 0;
+      const llm = (cd.llm_calls||[])[i] || 0;
+      const rouge = (cd.rouge_l||[])[i] || 0;
+      const qual = (cd.quality_scores||[])[i] || 0;
+      const lat = (cd.latency_ms||[])[i] || 0;
+
+      // Color-code: green for best, red for worst
+      const tokenColor = tokens <= minTokensVal ? 'var(--cyber-green)' : tokens >= maxTokensVal ? 'var(--cyber-pink)' : '';
+      const qualColor = qual >= maxQual ? 'var(--cyber-green)' : qual <= minQual ? 'var(--cyber-pink)' : '';
+
+      return '<tr>' +
+        '<td style="color:var(--cyber-cyan);font-weight:600">' + m.replace(/_/g,' ').toUpperCase() + '</td>' +
+        '<td style="color:'+tokenColor+'">' + fmt(Math.round(tokens)) + '</td>' +
+        '<td>' + eff.toFixed(1) + '%</td>' +
+        '<td>' + fmt(Math.round(llm)) + '</td>' +
+        '<td>' + rouge.toFixed(3) + '</td>' +
+        '<td style="color:'+qualColor+'">' + qual.toFixed(3) + '</td>' +
+        '<td>' + lat.toFixed(1) + '</td>' +
+      '</tr>';
+    }).join('');
+  } else {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty">NO BENCHMARK DATA</td></tr>';
+  }
+}
+
+/* ============ AUTO REFRESH ============ */
+function startRefresh() {
+  refreshDashboard();
+  refreshInterval = setInterval(() => {
+    if (currentTab === 'dashboard') refreshDashboard();
+  }, 5000);
+}
+startRefresh();
+
+/* ============ EXPERIMENT CONTROL ============ */
+let currentExpRunId = null;
+let expWebSocket = null;
+
+async function loadExperimentConfigs() {
+  const configs = await api('/api/experiments/configs');
+  const select = document.getElementById('expConfigSelect');
+  if (configs && configs.length > 0) {
+    select.innerHTML = configs.map(c =>
+      '<option value="' + c.name + '">' + c.name + ' (' + c.dimension + ')</option>'
+    ).join('');
+  } else {
+    select.innerHTML = '<option value="">No configs found</option>';
+  }
+}
+
+async function startExperiment() {
+  const configName = document.getElementById('expConfigSelect').value;
+  const traceDir = document.getElementById('expTraceSelect').value;
+  if (!configName) {
+    alert('Please select a config');
+    return;
+  }
+
+  document.getElementById('btnStartExp').disabled = true;
+  document.getElementById('btnStopExp').disabled = false;
+  document.getElementById('expRunStatus').style.display = 'block';
+  document.getElementById('expStatusText').textContent = 'INITIALIZING...';
+
+  try {
+    const response = await fetch('/api/control/experiments/run/' + encodeURIComponent(configName) + '?trace_dir=' + encodeURIComponent(traceDir), {
+      method: 'POST'
+    });
+    const data = await response.json();
+
+    if (data.run_id) {
+      currentExpRunId = data.run_id;
+      document.getElementById('expStatusText').textContent = 'RUNNING: ' + data.run_id;
+      connectExperimentStream(data.run_id);
+    } else {
+      throw new Error(data.detail || 'Failed to start experiment');
+    }
+  } catch (err) {
+    document.getElementById('expStatusText').textContent = 'ERROR: ' + err.message;
+    document.getElementById('btnStartExp').disabled = false;
+    document.getElementById('btnStopExp').disabled = true;
+  }
+}
+
+function connectExperimentStream(runId) {
+  const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const wsUrl = wsProtocol + '//' + window.location.host + '/api/control/experiments/run/' + runId + '/stream';
+
+  expWebSocket = new WebSocket(wsUrl);
+
+  expWebSocket.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    const msgType = data.type;
+
+    // Handle different message types
+    if (msgType === 'init') {
+      // Initial state
+      if (data.state) {
+        document.getElementById('expStatusText').textContent = 'RUNNING: ' + data.state.current_step;
+        if (data.state.progress) {
+          document.getElementById('expProgress').textContent = (data.state.progress * 100).toFixed(0) + '%';
+          document.getElementById('expProgressBar').style.width = (data.state.progress * 100) + '%';
+        }
+      }
+    } else if (msgType === 'progress') {
+      // Progress update with metrics
+      if (data.progress !== undefined) {
+        document.getElementById('expProgress').textContent = (data.progress * 100).toFixed(0) + '%';
+        document.getElementById('expProgressBar').style.width = (data.progress * 100) + '%';
+      }
+      if (data.metrics) {
+        updateLiveMetrics(data.metrics);
+      }
+    } else if (msgType === 'step') {
+      // Step update
+      if (data.step) {
+        document.getElementById('expStatusText').textContent = data.step;
+      }
+      if (data.progress !== undefined) {
+        document.getElementById('expProgress').textContent = (data.progress * 100).toFixed(0) + '%';
+        document.getElementById('expProgressBar').style.width = (data.progress * 100) + '%';
+      }
+    } else if (msgType === 'completed' || msgType === 'stopped' || msgType === 'error') {
+      // Experiment finished
+      document.getElementById('expStatusText').textContent = msgType.toUpperCase();
+      document.getElementById('btnStartExp').disabled = false;
+      document.getElementById('btnStopExp').disabled = true;
+      if (data.metrics) {
+        updateLiveMetrics(data.metrics);
+      }
+      if (expWebSocket) expWebSocket.close();
+      loadExperiments(); // Refresh results table
+    } else if (msgType === 'heartbeat') {
+      // Keep alive, ignore
+    }
+  };
+
+  expWebSocket.onerror = function(error) {
+    console.error('WebSocket error:', error);
+    document.getElementById('expStatusText').textContent = 'CONNECTION ERROR';
+  };
+
+  expWebSocket.onclose = function() {
+    expWebSocket = null;
+  };
+}
+
+function updateLiveMetrics(metrics) {
+  if (metrics.total_tokens !== undefined) {
+    document.getElementById('liveTokens').textContent = fmt(metrics.total_tokens);
+  }
+  if (metrics.llm_calls !== undefined) {
+    document.getElementById('liveLlmCalls').textContent = fmt(metrics.llm_calls);
+  }
+  if (metrics.snapshot_count !== undefined) {
+    document.getElementById('liveSnapshots').textContent = fmt(metrics.snapshot_count);
+  }
+  if (metrics.skip_count !== undefined) {
+    document.getElementById('liveSkips').textContent = fmt(metrics.skip_count);
+  }
+  if (metrics.cache_hit_rate !== undefined) {
+    document.getElementById('liveCacheBar').style.width = (metrics.cache_hit_rate * 100) + '%';
+  }
+  if (metrics.semantic_filter_rate !== undefined) {
+    document.getElementById('liveSemanticBar').style.width = (metrics.semantic_filter_rate * 100) + '%';
+  }
+}
+
+async function stopExperiment() {
+  if (!currentExpRunId) return;
+
+  try {
+    await fetch('/api/control/experiments/run/' + currentExpRunId + '/stop', { method: 'POST' });
+    document.getElementById('expStatusText').textContent = 'STOPPING...';
+  } catch (err) {
+    console.error('Failed to stop experiment:', err);
+  }
+}
+
+/* ============ BENCHMARK ============ */
+async function loadOllamaModels() {
+  const data = await api('/api/experiments/ollama/models');
+  if (!data || !data.available) {
+    console.log('[Models] Ollama not available or no models found - using defaults');
+    return;
+  }
+
+  const brainSel = document.getElementById('bmBrainModel');
+  const embedSel = document.getElementById('bmEmbedModel');
+
+  // Only update if we have valid models with names
+  if (data.brain_models && data.brain_models.length > 0) {
+    // Filter out models without valid names
+    const validBrainModels = data.brain_models.filter(m => m.name && m.name.trim() !== '');
+
+    if (validBrainModels.length > 0) {
+      brainSel.innerHTML = validBrainModels.map(m => {
+        const displayName = m.name + (m.parameter_size ? ' (~' + m.parameter_size + ')' : '');
+        return '<option value="' + m.name + '">' + displayName + '</option>';
+      }).join('');
+      console.log('[Models] Loaded ' + validBrainModels.length + ' brain models');
+    } else {
+      console.log('[Models] No valid brain models found - keeping defaults');
+    }
+  }
+
+  if (data.embedding_models && data.embedding_models.length > 0) {
+    // Filter out models without valid names
+    const validEmbedModels = data.embedding_models.filter(m => m.name && m.name.trim() !== '');
+
+    if (validEmbedModels.length > 0) {
+      embedSel.innerHTML = validEmbedModels.map(m =>
+        '<option value="' + m.name + '">' + m.name + '</option>'
+      ).join('');
+      console.log('[Models] Loaded ' + validEmbedModels.length + ' embedding models');
+    } else {
+      console.log('[Models] No valid embedding models found - keeping defaults');
+    }
+  }
+}
+
+async function runBenchmark() {
+  const brainModel = document.getElementById('bmBrainModel').value;
+  const vlmModel = document.getElementById('bmVlmModel').value;
+  const embedModel = document.getElementById('bmEmbedModel').value;
+  const dataset = document.getElementById('bmDataset').value;
+  const phase = document.getElementById('bmPhase').value.trim();
+  const mode = document.getElementById('bmModeSelect').value;
+  const runs = parseInt(document.getElementById('bmRuns').value);
+  const seed = parseInt(document.getElementById('bmSeed').value);
+
+  // Get selected methods
+  const methods = Array.from(document.querySelectorAll('.method-check:checked')).map(cb => cb.value);
+
+  if (methods.length === 0) {
+    alert('⚠️ Please select at least one method!');
+    return;
+  }
+
+  if (!phase || phase === '') {
+    alert('⚠️ Please enter a Phase identifier (e.g., phase1a)');
+    return;
+  }
+
+  document.getElementById('btnRunBenchmark').disabled = true;
+  document.getElementById('btnStopBenchmark').disabled = false;
+  document.getElementById('bmRunStatus').style.display = 'block';
+  document.getElementById('bmStatusText').textContent = 'INITIALIZING...';
+  document.getElementById('bmProgress').textContent = '0%';
+  document.getElementById('bmProgressBar').style.width = '0%';
+
+  try {
+    const response = await fetch('/api/control/benchmark/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        brain_model: brainModel,
+        vlm_model: vlmModel || null,
+        embedding_model: embedModel,
+        dataset: dataset,
+        phase: phase,
+        mode: mode,
+        runs: runs,
+        seed: seed,
+        methods: methods,
+        force: false
+      })
+    });
+    const data = await response.json();
+
+    if (data.run_id) {
+      currentExpRunId = data.run_id;
+      document.getElementById('bmStatusText').textContent = 'RUNNING: ' + phase.toUpperCase() + ' - ' + dataset;
+      connectBenchmarkStream(data.run_id);
+    } else {
+      throw new Error(data.detail || 'Failed to start benchmark');
+    }
+  } catch (err) {
+    document.getElementById('bmStatusText').textContent = 'ERROR: ' + err.message;
+    document.getElementById('btnRunBenchmark').disabled = false;
+    document.getElementById('btnStopBenchmark').disabled = true;
+  }
+}
+
+function connectBenchmarkStream(runId) {
+  const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const wsUrl = wsProtocol + '//' + window.location.host + '/api/control/experiments/run/' + runId + '/stream';
+  const ws = new WebSocket(wsUrl);
+
+  ws.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+
+    if (data.type === 'progress' || data.type === 'step') {
+      if (data.progress !== undefined) {
+        document.getElementById('bmProgress').textContent = (data.progress * 100).toFixed(0) + '%';
+        document.getElementById('bmProgressBar').style.width = (data.progress * 100) + '%';
+      }
+      if (data.metrics) updateLiveMetrics(data.metrics);
+      if (data.step) document.getElementById('bmStatusText').textContent = data.step;
+      if (data.message) document.getElementById('bmStatusText').textContent = data.message;
+    } else if (data.type === 'completed') {
+      document.getElementById('bmStatusText').textContent = 'BENCHMARK COMPLETE';
+      document.getElementById('bmProgress').textContent = '100%';
+      document.getElementById('bmProgressBar').style.width = '100%';
+      document.getElementById('btnRunBenchmark').disabled = false;
+      document.getElementById('btnStopBenchmark').disabled = true;
+      if (data.metrics) updateLiveMetrics(data.metrics);
+      ws.close();
+      // Auto-switch to analytics and refresh
+      setTimeout(() => { loadAnalytics(); }, 500);
+    } else if (data.type === 'error') {
+      document.getElementById('bmStatusText').textContent = 'ERROR: ' + (data.error || 'Unknown error');
+      document.getElementById('btnRunBenchmark').disabled = false;
+      document.getElementById('btnStopBenchmark').disabled = true;
+      ws.close();
+    } else if (data.type === 'stopped') {
+      document.getElementById('bmStatusText').textContent = 'STOPPED';
+      document.getElementById('btnRunBenchmark').disabled = false;
+      document.getElementById('btnStopBenchmark').disabled = true;
+      ws.close();
+    } else if (data.type === 'init') {
+      if (data.state && data.state.current_step) {
+        document.getElementById('bmStatusText').textContent = data.state.current_step;
+      }
+    }
+  };
+
+  ws.onerror = function() {
+    document.getElementById('bmStatusText').textContent = 'CONNECTION ERROR';
+    document.getElementById('btnRunBenchmark').disabled = false;
+  };
+
+  // Poll for progress since benchmark runs in thread (progress_callback updates aren't pushed via WS)
+  const pollInterval = setInterval(async () => {
+    const status = await api('/api/control/experiments/run/' + runId + '/status');
+    if (status) {
+      if (status.progress) {
+        document.getElementById('bmProgress').textContent = (status.progress * 100).toFixed(0) + '%';
+        document.getElementById('bmProgressBar').style.width = (status.progress * 100) + '%';
+      }
+      if (status.current_step) document.getElementById('bmStatusText').textContent = status.current_step;
+      if (status.metrics) updateLiveMetrics(status.metrics);
+      if (status.status === 'completed' || status.status === 'failed' || status.status === 'stopped') {
+        clearInterval(pollInterval);
+      }
+    }
+  }, 3000);
+}
+
+/* ============ FILE MANAGEMENT ============ */
+let currentFilePath = null;
+let fileModified = false;
+
+async function loadFileCategory(category, btn) {
+  // Update button states
+  document.querySelectorAll('.file-cat-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  const url = category === 'all' ? '/api/files/list' : '/api/files/list?category=' + category;
+  const files = await api(url);
+
+  const list = document.getElementById('fileList');
+  if (files && files.length > 0) {
+    list.innerHTML = files.map(f => {
+      const catClass = 'cat-' + f.category;
+      return '<div class="log-item" onclick="loadFile(\'' + f.path.replace(/'/g, "\\'") + '\')">' +
+        '<div><span class="file-cat ' + catClass + '">' + f.category.toUpperCase() + '</span>' + f.name + '</div>' +
+        '<span class="file-size">' + (f.size / 1024).toFixed(1) + 'KB</span>' +
+      '</div>';
+    }).join('');
+  } else {
+    list.innerHTML = '<div class="empty">NO FILES FOUND</div>';
+  }
+}
+
+async function loadFile(path) {
+  if (fileModified && !confirm('Discard unsaved changes?')) return;
+
+  try {
+    const response = await fetch('/api/files/read?path=' + encodeURIComponent(path));
+    const data = await response.json();
+
+    if (response.ok) {
+      currentFilePath = path;
+      document.getElementById('fileEditor').value = data.content;
+      document.getElementById('editorTitle').textContent = 'EDITING: ' + path.split('/').pop();
+      document.getElementById('editorStatus').textContent = 'Loaded: ' + path;
+      fileModified = false;
+
+      // Highlight in list
+      document.querySelectorAll('#fileList .log-item').forEach(item => item.classList.remove('active'));
+      document.querySelectorAll('#fileList .log-item').forEach(item => {
+        if (item.onclick.toString().includes(path)) item.classList.add('active');
+      });
+    } else {
+      document.getElementById('editorStatus').textContent = 'Error: ' + (data.detail || 'Failed to load');
+    }
+  } catch (err) {
+    document.getElementById('editorStatus').textContent = 'Error: ' + err.message;
+  }
+}
+
+async function saveFile() {
+  if (!currentFilePath) {
+    alert('No file selected');
+    return;
+  }
+
+  const content = document.getElementById('fileEditor').value;
+
+  try {
+    const response = await fetch('/api/files/write', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: currentFilePath, content: content })
+    });
+    const data = await response.json();
+
+    if (response.ok) {
+      document.getElementById('editorStatus').textContent = 'Saved: ' + currentFilePath + (data.message ? ' - ' + data.message : '');
+      document.getElementById('editorStatus').style.color = 'var(--cyber-green)';
+      fileModified = false;
+      setTimeout(() => {
+        document.getElementById('editorStatus').style.color = '';
+      }, 3000);
+    } else {
+      document.getElementById('editorStatus').textContent = 'Error: ' + (data.detail || 'Failed to save');
+      document.getElementById('editorStatus').style.color = 'var(--cyber-pink)';
+    }
+  } catch (err) {
+    document.getElementById('editorStatus').textContent = 'Error: ' + err.message;
+    document.getElementById('editorStatus').style.color = 'var(--cyber-pink)';
+  }
+}
+
+function reloadFile() {
+  if (currentFilePath) {
+    fileModified = false;
+    loadFile(currentFilePath);
+  }
+}
+
+async function hotReloadConfig() {
+  const status = document.getElementById('reloadStatus');
+  status.textContent = 'Reloading...';
+  status.style.color = 'var(--cyber-yellow)';
+
+  try {
+    const response = await fetch('/api/files/config/reload', { method: 'POST' });
+    const data = await response.json();
+
+    if (response.ok) {
+      status.textContent = 'Config reloaded successfully!';
+      status.style.color = 'var(--cyber-green)';
+    } else {
+      status.textContent = 'Error: ' + (data.detail || 'Reload failed');
+      status.style.color = 'var(--cyber-pink)';
+    }
+  } catch (err) {
+    status.textContent = 'Error: ' + err.message;
+    status.style.color = 'var(--cyber-pink)';
+  }
+
+  setTimeout(() => { status.textContent = ''; }, 5000);
+}
+
+// Track file modifications
+document.getElementById('fileEditor').addEventListener('input', function() {
+  fileModified = true;
+  document.getElementById('editorStatus').textContent = 'Modified (unsaved)';
+});
+
+/* ============ RESEARCH & ESM ============ */
+let esmQuestions = [];
+let esmStartTime = null;
+
+async function loadResearch() {
+  await Promise.all([
+    loadESMConfig(),
+    loadParticipants(),
+    loadESMResponses()
+  ]);
+}
+
+async function loadESMConfig() {
+  const config = await api('/api/research/esm/config');
+  if (config) {
+    document.getElementById('esmStatus').textContent = config.enabled ? 'ACTIVE' : 'PAUSED';
+    document.getElementById('esmStatus').style.color = config.enabled ? 'var(--cyber-green)' : 'var(--cyber-yellow)';
+    document.getElementById('esmInterval').value = config.interval_hours || 4;
+    if (config.next_trigger) {
+      const next = new Date(config.next_trigger);
+      document.getElementById('esmNextTrigger').textContent = next.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+    }
+    esmQuestions = config.questions || [];
+  }
+}
+
+async function loadParticipants() {
+  const participants = await api('/api/research/participants');
+  const list = document.getElementById('participantList');
+
+  if (participants && participants.length > 0) {
+    list.innerHTML = participants.map(p => {
+      const statusClass = 'status-' + p.status;
+      return '<div class="participant-item">' +
+        '<span class="participant-name">' + p.name + ' (' + p.id + ')</span>' +
+        '<span class="participant-status ' + statusClass + '">' + p.status.toUpperCase() + '</span>' +
+      '</div>';
+    }).join('');
+  } else {
+    list.innerHTML = '<div class="empty" style="padding:16px">NO PARTICIPANTS</div>';
+  }
+}
+
+async function loadESMResponses() {
+  const responses = await api('/api/research/esm/responses?limit=50');
+  const list = document.getElementById('esmResponseList');
+
+  if (responses && responses.length > 0) {
+    list.innerHTML = responses.reverse().map(r => {
+      const time = r.timestamp ? new Date(r.timestamp).toLocaleString() : '---';
+      const preview = r.responses.current_activity || r.responses.notes || '(no text)';
+      return '<div class="esm-response-item">' +
+        '<div class="esm-response-header">' +
+          '<span class="esm-response-time">' + time + '</span>' +
+          '<span class="esm-response-participant">' + r.participant_id + '</span>' +
+        '</div>' +
+        '<div class="esm-response-preview">' + preview.substring(0, 100).replace(/</g, '&lt;') + '</div>' +
+      '</div>';
+    }).join('');
+  } else {
+    list.innerHTML = '<div class="empty" style="padding:16px">NO RESPONSES YET</div>';
+  }
+}
+
+async function addParticipant() {
+  const name = document.getElementById('newParticipantName').value.trim();
+  if (!name) {
+    alert('Please enter a participant name');
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/research/participants', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name })
+    });
+
+    if (response.ok) {
+      document.getElementById('newParticipantName').value = '';
+      loadParticipants();
+    } else {
+      const data = await response.json();
+      alert('Error: ' + (data.detail || 'Failed to add participant'));
+    }
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
+}
+
+async function triggerESM() {
+  // Load questions if not already loaded
+  if (esmQuestions.length === 0) {
+    const questions = await api('/api/research/esm/questions');
+    esmQuestions = questions || [];
+  }
+
+  // Build popup content
+  const content = document.getElementById('esmContent');
+  content.innerHTML = esmQuestions.map(q => {
+    let input = '';
+    const required = q.required ? '<span class="required">*</span>' : '';
+
+    if (q.type === 'text') {
+      input = '<textarea id="esm_' + q.id + '" placeholder="' + (q.placeholder || '') + '"></textarea>';
+    } else if (q.type === 'slider') {
+      input = '<div class="esm-slider">';
+      for (let i = q.min; i <= q.max; i++) {
+        const label = q.labels ? q.labels[i - q.min] : i;
+        input += '<label><input type="radio" name="esm_' + q.id + '" value="' + i + '"> ' + label + '</label>';
+      }
+      input += '</div>';
+    } else if (q.type === 'radio') {
+      input = '<div class="esm-radio">';
+      q.options.forEach(opt => {
+        input += '<label><input type="radio" name="esm_' + q.id + '" value="' + opt.value + '"> ' + opt.label + '</label>';
+      });
+      input += '</div>';
+    }
+
+    return '<div class="esm-question">' +
+      '<label>' + q.question + required + '</label>' +
+      input +
+    '</div>';
+  }).join('');
+
+  // Show popup
+  document.getElementById('esmPopup').style.display = 'flex';
+  esmStartTime = Date.now();
+
+  // Also trigger backend
+  fetch('/api/research/esm/trigger', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify('default')
+  });
+}
+
+function closeESM() {
+  document.getElementById('esmPopup').style.display = 'none';
+}
+
+function snoozeESM() {
+  closeESM();
+  // Could implement a snooze timer here
+  setTimeout(() => triggerESM(), 15 * 60 * 1000); // 15 minutes
+}
+
+async function submitESM() {
+  const responses = {};
+
+  esmQuestions.forEach(q => {
+    if (q.type === 'text') {
+      const el = document.getElementById('esm_' + q.id);
+      if (el) responses[q.id] = el.value;
+    } else if (q.type === 'slider' || q.type === 'radio') {
+      const selected = document.querySelector('input[name="esm_' + q.id + '"]:checked');
+      if (selected) responses[q.id] = selected.value;
+    }
+  });
+
+  // Validate required fields
+  for (const q of esmQuestions) {
+    if (q.required && !responses[q.id]) {
+      alert('Please answer: ' + q.question);
+      return;
+    }
+  }
+
+  const duration = esmStartTime ? (Date.now() - esmStartTime) / 1000 : 0;
+
+  try {
+    const response = await fetch('/api/research/esm/response', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        participant_id: 'default',
+        responses: responses,
+        context: {},
+        duration_seconds: duration
+      })
+    });
+
+    if (response.ok) {
+      closeESM();
+      loadESMResponses();
+    } else {
+      const data = await response.json();
+      alert('Error: ' + (data.detail || 'Failed to submit'));
+    }
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
+}
+
+async function toggleESM() {
+  const config = await api('/api/research/esm/config');
+  const newEnabled = !(config && config.enabled);
+
+  try {
+    await fetch('/api/research/esm/config', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        enabled: newEnabled,
+        interval_hours: parseInt(document.getElementById('esmInterval').value),
+        questions: esmQuestions
+      })
+    });
+    loadESMConfig();
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
+}
+
+async function exportData() {
+  const options = {
+    anonymize_ids: document.getElementById('exportAnonymize').checked,
+    remove_paths: document.getElementById('exportRemovePaths').checked,
+    include_raw_logs: document.getElementById('exportIncludeLogs').checked,
+    format: document.getElementById('exportFormat').value
+  };
+
+  const status = document.getElementById('exportStatus');
+  status.textContent = 'Exporting...';
+
+  try {
+    const response = await fetch('/api/research/export', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(options)
+    });
+    const data = await response.json();
+
+    if (response.ok) {
+      status.textContent = 'Export complete! File: ' + data.export_path +
+        ' (' + data.records_count.participants + ' participants, ' +
+        data.records_count.esm_responses + ' responses)';
+      status.style.color = 'var(--cyber-green)';
+    } else {
+      status.textContent = 'Error: ' + (data.detail || 'Export failed');
+      status.style.color = 'var(--cyber-pink)';
+    }
+  } catch (err) {
+    status.textContent = 'Error: ' + err.message;
+    status.style.color = 'var(--cyber-pink)';
+  }
+}
+
+/* ============ INIT ON TAB SWITCH ============ */
+const originalSwitchTab = switchTab;
+switchTab = function(tab) {
+  originalSwitchTab(tab);
+  if (tab === 'files') loadFileCategory('all', document.querySelector('.file-cat-btn'));
+  if (tab === 'research') loadResearch();
+  if (tab === 'experiments') loadExperimentConfigs();
+  if (tab === 'analytics') refreshResultsList();
+};
+
+/* ============ METHOD SELECTION HELPERS ============ */
+function selectAllMethods(selectAll) {
+  const checkboxes = document.querySelectorAll('.method-check');
+  checkboxes.forEach(cb => cb.checked = selectAll);
+}
+
+/* ============ ANALYTICS RESULT SELECTOR ============ */
+async function refreshResultsList() {
+  try {
+    const results = await api('/api/experiments/results/list');
+    const select = document.getElementById('analyticsResultSelect');
+    select.innerHTML = '<option value="">-- Choose result to load --</option>';
+
+    if (results && results.length > 0) {
+      results.forEach(r => {
+        const option = document.createElement('option');
+        option.value = r.path;
+        option.textContent = `${r.display_name} - ${r.methods_count} methods`;
+        option.dataset.metadata = JSON.stringify({
+          phase: r.phase,
+          dataset: r.dataset,
+          brain_model: r.brain_model,
+          vlm_model: r.vlm_model,
+          methods_count: r.methods_count
+        });
+        select.appendChild(option);
+      });
+    } else {
+      console.warn('No experiment results found');
+    }
+  } catch (err) {
+    console.error('Failed to refresh results list:', err);
+    alert('❌ Failed to refresh results list: ' + err.message);
+  }
+}
+
+async function loadSelectedResult() {
+  const select = document.getElementById('analyticsResultSelect');
+  const path = select.value;
+
+  if (!path) {
+    alert('⚠️ Please select an experiment result first');
+    return;
+  }
+
+  try {
+    // Display metadata
+    const selectedOption = select.options[select.selectedIndex];
+    const metadata = JSON.parse(selectedOption.dataset.metadata || '{}');
+
+    document.getElementById('resultMetadata').style.display = 'block';
+    document.getElementById('resultMetadata').innerHTML = `
+      <strong>Phase:</strong> ${metadata.phase || 'N/A'} |
+      <strong>Dataset:</strong> ${metadata.dataset || 'N/A'} |
+      <strong>Methods:</strong> ${metadata.methods_count || 0} |
+      <strong>Brain:</strong> ${metadata.brain_model || 'N/A'} |
+      <strong>VLM:</strong> ${metadata.vlm_model || 'None'}
+    `;
+
+    // Load result data
+    const data = await fetch(`/api/experiments/results/load?path=${encodeURIComponent(path)}`).then(r => r.json());
+
+    // Render analytics charts with loaded data
+    renderAnalyticsFromData(data);
+
+  } catch (err) {
+    console.error('Failed to load result:', err);
+    alert('❌ Failed to load result: ' + err.message);
+  }
+}
+
+function renderAnalyticsFromData(data) {
+  // Extract results and metadata
+  const results = data.results || {};
+  const metadata = data.metadata || {};
+
+  // Update summary stats
+  const methods = Object.keys(results);
+  document.getElementById('aTotalMethods').textContent = methods.length;
+  document.getElementById('aDataSource').textContent = 'LOADED';
+
+  // Find best quality and efficiency
+  let bestQuality = { method: 'N/A', score: 0 };
+  let bestEfficiency = { method: 'N/A', score: Infinity };
+
+  for (const [method, metrics] of Object.entries(results)) {
+    if (metrics.error) continue;
+
+    // Extract mean values from nested structure
+    const quality = metrics.quality?.quality_score?.mean ?? 0;
+    const tokens = metrics.raw_stats?.total_tokens?.mean ?? Infinity;
+
+    if (quality > bestQuality.score) {
+      bestQuality = { method: method, score: quality };
+    }
+    if (tokens < bestEfficiency.score) {
+      bestEfficiency = { method: method, score: tokens };
+    }
+  }
+
+  document.getElementById('aBestQuality').textContent = bestQuality.method.replace(/_/g, ' ').toUpperCase();
+  document.getElementById('aBestEfficiency').textContent = bestEfficiency.method.replace(/_/g, ' ').toUpperCase();
+
+  // Build chart data from results
+  const chartData = {
+    methods: methods,
+    tokens: [],
+    llm_calls: [],
+    quality_scores: [],
+    rouge_l: [],
+    latency_ms: [],
+    classification_accuracy: [],
+    efficiency: [],
+    snapshot_rates: []
+  };
+
+  methods.forEach(method => {
+    const m = results[method];
+    if (m.error) {
+      chartData.tokens.push(0);
+      chartData.llm_calls.push(0);
+      chartData.quality_scores.push(0);
+      chartData.rouge_l.push(0);
+      chartData.latency_ms.push(0);
+      chartData.classification_accuracy.push(0);
+      chartData.efficiency.push(0);
+      chartData.snapshot_rates.push(0);
+      return;
+    }
+
+    const raw = m.raw_stats || {};
+    const qual = m.quality || {};
+    const summ = m.summarization || {};
+    const eff = m.efficiency || {};
+
+    // Extract mean values from nested structure, with proper null handling
+    chartData.tokens.push(raw.total_tokens?.mean ?? 0);
+    chartData.llm_calls.push(raw.llm_calls?.mean ?? 0);
+    chartData.quality_scores.push(qual.quality_score?.mean ?? 0);
+    chartData.rouge_l.push(summ.rouge_l?.mean ?? 0);
+    chartData.latency_ms.push((m.elapsed_seconds?.mean ?? 0) * 1000);
+    chartData.classification_accuracy.push(qual.classification_accuracy?.mean ?? 0);
+    chartData.efficiency.push((eff.token_efficiency?.mean ?? 0) * 100);
+    chartData.snapshot_rates.push((m.snapshot_rate?.mean ?? 0) * 100);
+  });
+
+  // Call existing chart rendering function
+  updateAnalyticsChartsFromData(chartData);
+}
+
+function updateAnalyticsChartsFromData(cd) {
+  const labels = cd.methods.map(m => m.replace(/_/g,' ').toUpperCase());
+
+  // Update Token Chart
+  if (charts.token) {
+    charts.token.data.labels = labels;
+    charts.token.data.datasets[0].data = cd.tokens;
+    charts.token.update();
+  }
+
+  // Update Quality Chart (has 3 datasets: ROUGE-L, QUALITY, CLASS ACC)
+  if (charts.quality) {
+    charts.quality.data.labels = labels;
+    charts.quality.data.datasets[0].data = cd.rouge_l;
+    charts.quality.data.datasets[1].data = cd.quality_scores;
+    charts.quality.data.datasets[2].data = cd.classification_accuracy;
+    charts.quality.update();
+  }
+
+  // Update Pareto Chart (efficiency vs quality)
+  if (charts.pareto) {
+    const paretoData = labels.map((_, i) => ({
+      x: cd.efficiency[i],        // X = efficiency (matches initialization)
+      y: cd.quality_scores[i],    // Y = quality score
+      label: labels[i]
+    }));
+    charts.pareto.data.datasets[0].data = paretoData;
+    charts.pareto.update();
+  }
+
+  // Update Latency Chart
+  if (charts.latency) {
+    charts.latency.data.labels = labels;
+    charts.latency.data.datasets[0].data = cd.latency_ms;
+    charts.latency.update();
+  }
+
+  // Update Radar Chart (each method is a separate dataset with 6 dimensions)
+  if (charts.radar) {
+    const maxTokens = Math.max(...cd.tokens.filter(t => !isNaN(t) && t > 0), 1);
+    const maxLatency = Math.max(...cd.latency_ms.filter(t => !isNaN(t) && t > 0), 1);
+
+    // Update each dataset (one per method)
+    labels.forEach((label, i) => {
+      if (charts.radar.data.datasets[i]) {
+        charts.radar.data.datasets[i].data = [
+          Number(cd.efficiency[i]) || 0,                      // EFFICIENCY
+          (Number(cd.quality_scores[i]) || 0) * 100,          // QUALITY (scale to 0-100)
+          (Number(cd.rouge_l[i]) || 0) * 100,                 // ROUGE-L (scale to 0-100)
+          (Number(cd.classification_accuracy[i]) || 0) * 100, // CLASS ACC (scale to 0-100)
+          (1 - (Number(cd.tokens[i]) || 0) / maxTokens) * 100, // TOKEN SAVING (inverted)
+          (1 - (Number(cd.latency_ms[i]) || 0) / maxLatency) * 100, // SPEED (inverted)
+        ];
+      }
+    });
+    charts.radar.update();
+  }
+
+  // Update comparison table
+  const tbody = document.getElementById('bmComparisonBody');
+  tbody.innerHTML = labels.map((label, i) => {
+    // Safely format numbers with null checking
+    const formatNumber = (val, decimals = 0) => {
+      const num = Number(val);
+      return isNaN(num) ? '0' : num.toFixed(decimals);
+    };
+    const formatInt = (val) => {
+      const num = Number(val);
+      return isNaN(num) ? '0' : Math.round(num).toLocaleString();
+    };
+
+    return `
+      <tr>
+        <td>${label}</td>
+        <td>${formatInt(cd.tokens[i])}</td>
+        <td>${formatNumber(cd.efficiency[i], 1)}%</td>
+        <td>${formatInt(cd.llm_calls[i])}</td>
+        <td>${formatNumber(cd.rouge_l[i], 3)}</td>
+        <td>${formatNumber(cd.quality_scores[i], 3)}</td>
+        <td>${formatNumber(cd.latency_ms[i], 0)}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// Initial load
+loadExperimentConfigs();
+loadOllamaModels();
+refreshResultsList();
+</script>
+</body>
+</html>

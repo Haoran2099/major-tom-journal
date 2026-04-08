@@ -1,0 +1,10 @@
+"""Global constants for Major Tom Journal."""
+
+FILE_READ_LIMIT = 3000
+HISTORY_MAX_SIZE = 50
+CONTEXT_HISTORY_LINES = 10
+VLM_MAX_DIMENSION = 960
+DIFF_RESIZE_SIZE = 256  # Increased from 64 to capture more UI details
+MIN_WINDOW_WIDTH = 10
+MIN_PATTERN_LENGTH = 5
+MAX_PATTERN_LENGTH = 50
