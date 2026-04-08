@@ -14,21 +14,13 @@ pynput>=1.7.6
 # Local LLM integration
 ollama>=0.1.0
 
-# Benchmark metrics
-pandas>=2.0.0
-matplotlib>=3.8.0
-seaborn>=0.13.0
-rouge-score>=0.1.2
-bert-score>=0.3.13
+# Numerical computation (semantic routing)
+numpy>=1.24.0
 
-# External dataset download/conversion (download_external_datasets_v2.py)
-datasets>=2.19.0
-huggingface_hub>=0.23.0
-opencv-python>=4.9.0
-
-# Optional: For semantic routing with embeddings
-# numpy>=1.24.0
+# Web dashboard
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+websockets>=12.0
 
 # Note: This project requires Ollama to be installed separately
 # Visit https://ollama.com for installation instructions
-chromadb

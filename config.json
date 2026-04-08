@@ -1,8 +1,8 @@
 {
   "paths": {
-    "monitor_path": "~/Library/CloudStorage/OneDrive-个人",
-    "log_root": "~/Downloads/major-tom-journal_副本/Record",
-    "memory_root": "~/Downloads/major-tom-journal_副本/Memory"
+    "monitor_path": "~/Documents",
+    "log_root": "~/major-tom-journal/Record",
+    "memory_root": "~/major-tom-journal/Memory"
   },
   "parameters": {
     "sample_interval": 5,
